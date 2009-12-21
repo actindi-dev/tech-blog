@@ -200,7 +200,7 @@
           (get-entries (* *entries-per-page* (1- page)) *entries-per-page*))))
 
 (defun make-member-page (name)
-  (EVAL
+  (eval
    `(define-actindi.net-template (,(intern name) ,(format nil "/~A" name)) ()
       (mapc (lambda (x)
               (with-html-output (out nil :indent T)
@@ -227,10 +227,8 @@
                              (string= ,name (entry-author x)))
                            (get-all-entries))))))
 
-(mapc (lambda (n)
-        (make-member-page n))
+(mapc #'make-member-page
       '("komagata" "machida" "tahara" "masuda" "chiba"))
-
 
 (defvar *show-entry-dispatcher*
   (hunchentoot:create-regex-dispatcher "/[0-9]+$" 'show-entry))
