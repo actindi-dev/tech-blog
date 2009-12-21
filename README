@@ -1,0 +1,37 @@
+* ライブラリ
+
+Elephant は次のものを使ってください。
+
+darcs get --tag=ELEPHANT-1-0-A2 http://www.common-lisp.net/project/elephant/darcs/elephant-1.0
+
+Elephant は UFFI を必要としています。
+CFFI の cffi-uffi-compat わ使わずちゃんと UFFI を使ってください。
+
+
+* データ移行
+
+migrate.lisp をロードしてから (load "blog.lisp") を実行してください。
+
+ユーザは migrate.lisp にある (make-initial-user) を実行して作成してください。
+
+
+* 実装
+
+Web サーバは Hunchentoot を使っています。
+
+データストアは Elephant の CLSQL SQLite3 バックエンドを使っています。
+
+SQLite3 のファイルは config.lisp で指定しています。
+
+認証はベーシック認証です。
+
+
+* 実行
+
+(require :tech.actindi.net)
+(tech.actindi.net:start-tech.actindi.net :port 8888)
+
+
+* 停止
+
+(tech.actindi.net:stop-tech.actindi.net)
