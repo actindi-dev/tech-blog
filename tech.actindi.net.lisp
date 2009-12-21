@@ -223,7 +223,7 @@
     ((:div :id "news")
      (:h2 "技師部隊からの" :br
           "お知らせ")
-     (:p "只今アクトインディ株式会社技師部隊ではウェッブデザイナー/エンジニアを募集しています。<br />HTMLがわかる、CSSがわかる、Adobe Photoshopが使える、デザインが好き、ウェッブが好き、Ada、Ruby、CL、Haskell、Scheme、Prolog、Smalltalkが好き…な方、メールでご応募ください。"
+     (:p "インフルエンザに気をつけて頑張っています"
          :br
          ((:a :href "mailto:recruit@actindi.net")
            "Mail: recruit@actindi.net")))))
