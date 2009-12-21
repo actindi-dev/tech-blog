@@ -1,11 +1,16 @@
 (in-package :tech.actindi.net)
 
+(defun compute-path ()
+  (format nil "/~d" (get-universal-time)))
+
 (ele:defpclass entry ()
-  ((path :initarg :path :accessor entry-path :index t)
+  ((path :initarg :path :initform (compute-path) :accessor entry-path
+         :index t)
    (title :initarg :title :accessor entry-title)
    (body :initarg :body :accessor entry-body)
    (author :initarg :author :accessor entry-author :index t)
-   (date :initarg :date :accessor entry-date :index t)
+   (date :initarg :date :initform (get-universal-time) :accessor entry-date
+         :index t)
    (category :initarg :category :accessor entry-category :index t))
   (:index t))
 
@@ -32,3 +37,7 @@
            (ele:add-to-root 'counter counter))))
 ;; (incf-counter)
 
+(ele:defpclass user ()
+  ((id :initarg :id :accessor user-id :index t)
+   (passowrd :initarg :password :accessor user-password))
+  (:index t))

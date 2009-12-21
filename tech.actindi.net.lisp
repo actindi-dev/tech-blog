@@ -368,7 +368,7 @@
      (with-defalut-template ,contents)))
 
 ;; トップページ
-(define-actindi.net-template (root "/") (page)
+(define-actindi.net-template (root "/") (#|page|#)
   (mapc (lambda (x)
           (with-html-output (out nil :indent 2)
             ((:div :class "content")
@@ -505,24 +505,66 @@
           ((:div :class "poster")
            ((:img :src "images/poster_01.jpg" :alt "aaaa"))))))))))
 
-(define-actindi.net-template (login "/login") ()
+(define-actindi.net-template (login "/login") (user)
   (with-html-output (out nil :indent 2)
     ((:div :class "content")
      (:h2 "ログイン")
      (if *errors*
-         *errors*)
+         (format out "~a" *errors*))
      ((:form :method "POST" :action "/auth")
       (:div
        ((:label :for "user") "ユーザID:")
-       ((:input :type "text" :name "user" :value
-                (hunchentoot:get-parameter "user"))))
+       ((:input :type "text" :name "user" :value user)))
       (:div
        ((:label :for "password") "パスワード:")
        ((:input :type "password" :name "password")))
       (:div ((:input :type "submit" :value "ログイン")))))))
 
+(defun trim (x)
+  (and x (string-trim '(#\Space #\Tab #\Newline) x)))
 
+(defun presentp (x)
+  (and x (trim x) ""))
 
+(define-actindi.net-template (auth "/auth") (user password)
+  (let ((user (ele:get-instance-by-value 'user 'id user)))
+    (if (and user (equal password (user-password user)))
+        (entry-new)
+        (let ((*errors* "ログインできません。"))
+          (login)))))
+
+(define-actindi.net-template (entry-new "/entry/new")
+    (title author category body)
+  (with-html-output (out nil :indent nil)
+    ((:div :class "content")
+     (:h2 "投稿")
+     (if *errors*
+         (format out "~a" *errors*))
+     ((:form :method "POST" :action "/entry/create")
+      (:div
+       ((:label :for "title") "題名")
+       ((:input :type "text" :name "title" :value title)))
+      (:div
+       ((:label :for "author") "報告者")
+       ((:input :type "text" :name "author" :value author)))
+      (:div
+       ((:label :for "category") "区分")
+       ((:input :type "text" :name "category" :value category)))
+      (:div
+       ((:label :for "body") "本文")
+       ((:textarea :cols 30 :rows 15 :name "body")
+        (format out "~a" (trim (or body "")))))
+      (:div ((:input :type "submit" :value "投稿")))))))
+
+(define-actindi.net-template (entry-create "/entry/create")
+    (title author category body)
+  (progn
+    (make-instance 'entry
+                   :title title
+                   :author author
+                   :category category
+                   :body body)
+    (hunchentoot:redirect "/")))
 
 (defvar *server*)
 
