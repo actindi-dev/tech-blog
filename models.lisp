@@ -26,10 +26,28 @@
 
 (defun get-all-entries ()
   (let (result)
-    (ele:map-class (lambda (x) (push x result)) 'entry)
+    (ele:map-class (lambda (x)
+                     (push x result))
+                   'entry)
     result))
 ;;(setf (entry-title (car (get-all-entries))) "RSS はあああああ")
 
+(defun get-entries (offset max)
+  (let (result)
+    (ele:map-inverted-index (lambda (k x)
+                              (declare (ignore k))
+                              (if (zerop offset)
+                                  (progn
+                                    (push x result)
+                                    (when (zerop (decf max))
+                                      (return-from get-entries
+                                        (reverse result))))
+                                  (decf offset)))
+                            'entry
+                            'path
+                            :from-end t)
+    (reverse result)))
+;;(get-entries 0 3)
 
 (defun incf-counter ()
   (let ((counter (or (ele:get-from-root 'counter) 0)))

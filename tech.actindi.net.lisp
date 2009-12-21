@@ -1,6 +1,7 @@
 (in-package :tech.actindi.net)
 
 (defvar *errors* nil)
+(defvar *entries-per-page* 2)
 (defparameter *default-directory* (directory-namestring *load-truename*))
 
 ;; onlisp
@@ -385,7 +386,7 @@
     (and x (equal password (user-password x)))))
 
 ;; トップページ
-(define-actindi.net-template (root "/") (#|page|#)
+(define-actindi.net-template (root "/") (page)
   (mapc (lambda (x)
           (with-html-output (out nil :indent 2)
             ((:div :class "content")
@@ -410,9 +411,8 @@
                ">View Comments")
               "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
               ((:a :href "" :title "") "このページの上へ戻る")))))
-        (nth 0
-             (GROUP (get-all-entries) 10))))
-
+        (let ((page (or (and page (parse-integer page :junk-allowed t)) 1)))
+          (get-entries (* *entries-per-page* (1- page)) *entries-per-page*))))
 
 (defun make-member-page (name)
   (EVAL
