@@ -1,0 +1,34 @@
+(in-package :tech.actindi.net)
+
+(ele:defpclass entry ()
+  ((path :initarg :path :accessor entry-path :index t)
+   (title :initarg :title :accessor entry-title)
+   (body :initarg :body :accessor entry-body)
+   (author :initarg :author :accessor entry-author :index t)
+   (date :initarg :date :accessor entry-date :index t)
+   (category :initarg :category :accessor entry-category :index t))
+  (:index t))
+
+(defmethod print-object ((entry entry) stream)
+  (print-unreadable-object (entry stream :type t :identity t)
+    (format stream "~a ~a ~a"
+            (entry-path entry)
+            (entry-title entry)
+            (if (< 20 (length (entry-body entry)))
+                (subseq (entry-body entry) 0 20)
+                (entry-body entry)))))
+
+
+(defun get-all-entries ()
+  (let (result)
+    (ele:map-class (lambda (x) (push x result)) 'entry)
+    result))
+;;(setf (entry-title (car (get-all-entries))) "RSS はあああああ")
+
+
+(defun incf-counter ()
+  (let ((counter (or (ele:get-from-root 'counter) 0)))
+    (prog1 (incf counter)
+           (ele:add-to-root 'counter counter))))
+;; (incf-counter)
+
