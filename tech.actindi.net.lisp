@@ -223,10 +223,7 @@
     ((:div :id "news")
      (:h2 "技師部隊からの" :br
           "お知らせ")
-     (:p "インフルエンザに気をつけて頑張っています"
-         :br
-         ((:a :href "mailto:recruit@actindi.net")
-           "Mail: recruit@actindi.net")))))
+     (:p "インフルエンザに気をつけて頑張っています"))))
 
 
 ;; テンプレート
