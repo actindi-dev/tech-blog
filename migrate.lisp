@@ -35,7 +35,6 @@
        ,@body)))
 
 #|
-(load "blog.lisp")
 
 (let ((x))
   (ele:map-class (lambda (y)
@@ -54,3 +53,14 @@
       do (make-instance 'user :id u :password p))
 (ele:map-class #'print 'user)
 |#
+
+#+QUICK-START
+(PROGN
+  (DEFPARAMETER *SITE-FILES-DIRECTORY* #P"/var/www/tech-blog/")
+  (ASDF:oos 'ADSF:load-op :tech.actindi.net)
+
+  ;; start
+  (TECH.ACTINDI.NET:START-TECH.ACTINDI.NET)
+  (LOAD (MERGE-PATHNAMES "migrate" *SITE-FILES-DIRECTORY*))
+  (LOAD (MERGE-PATHNAMES "blog" *SITE-FILES-DIRECTORY*)))
+
