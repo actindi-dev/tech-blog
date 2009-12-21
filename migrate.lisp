@@ -35,13 +35,13 @@
        ,@body)))
 
 #|
-(load "blog.lisp")
 
 (let ((x))
   (ele:map-class (lambda (y)
                    (format t "~&==============================================")
                    (push (print y) x)) 'entry))
 |#
+
 
 (defun make-initial-user ()
   (loop for (u p) on (mapcar (lambda (x)
@@ -54,3 +54,12 @@
         by #'cddr
         do (make-instance 'user :id u :password p)))
 
+#+QUICK-START
+(PROGN
+  (DEFPARAMETER *SITE-FILES-DIRECTORY* #P"/var/www/tech-blog/")
+  (ASDF:oos 'ADSF:load-op :tech.actindi.net)
+
+  ;; start
+  (TECH.ACTINDI.NET:START-TECH.ACTINDI.NET)
+  (LOAD (MERGE-PATHNAMES "migrate" *SITE-FILES-DIRECTORY*))
+  (LOAD (MERGE-PATHNAMES "blog" *SITE-FILES-DIRECTORY*)))
