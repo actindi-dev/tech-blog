@@ -51,6 +51,7 @@
                              masuda   masuda1234
                              tahara   tahara1234
                              chiba    chiba1234))
+      by #'cddr
       do (make-instance 'user :id u :password p))
 (ele:map-class #'print 'user)
 |#

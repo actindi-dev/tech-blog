@@ -41,3 +41,7 @@
   ((id :initarg :id :accessor user-id :index t)
    (passowrd :initarg :password :accessor user-password))
   (:index t))
+
+(defmethod print-object ((user user) stream)
+  (print-unreadable-object (user stream :type t :identity t)
+    (format stream "~a" (user-id user))))
