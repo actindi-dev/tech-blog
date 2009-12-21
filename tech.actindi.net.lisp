@@ -367,6 +367,19 @@
   `(define-easy-handler (,name :uri ,path) ,args
      (with-defalut-template ,contents)))
 
+(defmacro with-auth.define-actindi.net-template ((name path) (&rest args) contents)
+  (let ((user (gensym))
+        (password (gensym)))
+    `(define-easy-handler (,name :uri ,path) ,args
+       (multiple-value-bind (,user ,password) (authorization)
+         (if (authrizedp ,user ,password)
+             (with-defalut-template ,contents)
+             (require-authorization))))))
+
+(defun authrizedp (user password)
+  (let ((x (ele:get-instance-by-value 'user 'id user)))
+    (and x (equal password (user-password x)))))
+
 ;; トップページ
 (define-actindi.net-template (root "/") (#|page|#)
   (mapc (lambda (x)
@@ -505,7 +518,13 @@
           ((:div :class "poster")
            ((:img :src "images/poster_01.jpg" :alt "aaaa"))))))))))
 
-(define-actindi.net-template (login "/login") (user)
+(defun trim (x)
+  (and x (string-trim '(#\Space #\Tab #\Newline) x)))
+
+(defun presentp (x)
+  (and x (trim x) ""))
+
+#|(define-actindi.net-template (login "/login") (user)
   (with-html-output (out nil :indent 2)
     ((:div :class "content")
      (:h2 "ログイン")
@@ -518,22 +537,16 @@
       (:div
        ((:label :for "password") "パスワード:")
        ((:input :type "password" :name "password")))
-      (:div ((:input :type "submit" :value "ログイン")))))))
+      (:div ((:input :type "submit" :value "ログイン")))))))|#
 
-(defun trim (x)
-  (and x (string-trim '(#\Space #\Tab #\Newline) x)))
-
-(defun presentp (x)
-  (and x (trim x) ""))
-
-(define-actindi.net-template (auth "/auth") (user password)
+#|(define-actindi.net-template (auth "/auth") (user password)
   (let ((user (ele:get-instance-by-value 'user 'id user)))
     (if (and user (equal password (user-password user)))
         (entry-new)
         (let ((*errors* "ログインできません。"))
-          (login)))))
+          (login)))))|#
 
-(define-actindi.net-template (entry-new "/entry/new")
+(with-auth.define-actindi.net-template (entry-new "/entry/new")
     (title author category body)
   (with-html-output (out nil :indent nil)
     ((:div :class "content")
@@ -556,7 +569,7 @@
         (format out "~a" (trim (or body "")))))
       (:div ((:input :type "submit" :value "投稿")))))))
 
-(define-actindi.net-template (entry-create "/entry/create")
+(with-auth.define-actindi.net-template (entry-create "/entry/create")
     (title author category body)
   (progn
     (make-instance 'entry
