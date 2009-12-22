@@ -49,6 +49,41 @@
     (reverse result)))
 ;;(get-entries 0 3)
 
+(defun get-entries-by-author (author offset max)
+  (let (result)
+    (ele:map-inverted-index (lambda (k x)
+                              (declare (ignore k))
+                              (when (string= author (entry-author x))
+                                (if (zerop offset)
+                                    (progn
+                                      (push x result)
+                                      (when (zerop (decf max))
+                                        (return-from get-entries-by-author
+                                          (reverse result))))
+                                    (decf offset))))
+                            'entry
+                            'path
+                            :from-end t)
+    (reverse result)))
+;;(get-entries-by-author "chiba" 0 3)
+
+(defun count-entryes ()
+  (let ((total 0))
+    (ele:map-class (lambda (x) (declare (ignore x)) (incf total))
+                   'entry :oids t)
+    total))
+
+(defun count-entryes-by-author (author)
+  (let ((total 0))
+    (ele:map-inverted-index (lambda (k x)
+                              (declare (ignore x k)) (incf total))
+                            'entry
+                            'author
+                            :value author
+                            :oids t)
+    total))
+;;(count-entryes-by-author "chiba")
+
 (defun incf-counter ()
   (let ((counter (or (ele:get-from-root 'counter) 0)))
     (prog1 (incf counter)

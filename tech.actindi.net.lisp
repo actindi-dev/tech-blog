@@ -1,8 +1,7 @@
 (in-package :tech.actindi.net)
 
 (defvar *errors* nil)
-(defvar *entries-per-page* 2)
-(defparameter *default-directory* (directory-namestring *load-truename*))
+(defvar *entries-per-page* 10)
 
 (defun number-to-kanji (num)
   (let ((digit   #("零" "一" "二" "三" "四" "五" "六" "七" "八" "九"))
@@ -22,17 +21,6 @@
           when value appending (cons (aref unit i) value) into result
           do (setf num n)
           finally (return (apply #'concatenate (cons 'string (reverse result)))))))
-
-;; CSS
-(define-easy-handler (reset.css :uri "/stylesheets/reset.css") ()
-  (setf (content-type*) "text/css")
-  (kmrcl:read-file-to-string
-   (merge-pathnames "reset.css" *default-directory*)))
-
-(define-easy-handler (basic.css :uri "/stylesheets/basic.css") ()
-  (setf (content-type*) "text/css")
-  (kmrcl:read-file-to-string
-   (merge-pathnames "basic.css" *default-directory*)))
 
 ;; RSS
 (define-easy-handler (|/rss.xml| :uri "/rss.xml") ()
@@ -56,7 +44,13 @@
                  (format-date out "<pubDate>%a, %d %b %Y %H:%M:%S +0900</pubDate>" (entry-date x)))))
             (get-all-entries))))))
 
-(setq *dispatch-table* '(dispatch-easy-handlers default-dispatcher))
+(setq *dispatch-table*
+      `(,(hunchentoot:create-folder-dispatcher-and-handler
+          "/stylesheets/" (merge-pathnames "stylesheets/" *default-directory*))
+         ,(hunchentoot:create-folder-dispatcher-and-handler
+           "/images/" (merge-pathnames "images/" *default-directory*))
+         dispatch-easy-handlers
+         default-dispatcher))
 
 ;; メンバー一覧
 (defparameter *top-member*
@@ -73,7 +67,8 @@
       (:li ((:a :href "/chiba") "chiba")))
      ((:p :class "to_actindi")
       ((:a :href "http://www.actindi.com")
-       "アクトインディへ")))))
+       "アクトインディへ")))
+    (:a :href "/entry/new" "投稿する")))
 
 ;; お知らせ
 (defparameter *block-news*
@@ -85,14 +80,12 @@
 
 ;; テンプレート
 (defmacro with-defalut-template (&body contents)
-  `(with-html-output-to-string (out nil :indent T :prologue T)
+  `(with-html-output-to-string (out nil :indent T :prologue nil)
      ((:html :xmlns "http://www.w3.org/1999/xhtml")
       (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
              (:title "アクトインディ技術部隊報告書")
-             ((:link :href "http://tech.actindi.net/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
-             ((:link :href "http://tech.actindi.net/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
-             #|((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))|#
-             #|((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))|#
+             ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
+             ((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
              ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")))
       (:body
        ((:div :id "header")
@@ -132,7 +125,7 @@
           ((:p :class "to_actindi")
            ((:a :href "" :title "") "アクトインディ")))
          ((:div :class "poster")
-          ((:img :src "images/poster_01.jpg" :alt "aaaa")))
+          ((:img :src "/images/poster_01.jpg" :alt "aaaa")))
          ((:script :type "text/javascript")
           "//<![CDATA["
           "(function() {
@@ -153,13 +146,14 @@
   `(define-easy-handler (,name :uri ,path) ,args
      (with-defalut-template ,contents)))
 
+(defun loginp ()
+  (multiple-value-bind (user password) (authorization)
+    (authrizedp user password)))
+
 (defmacro with-authorization (&body body)
-  (let ((user (gensym))
-        (password (gensym)))
-    `(multiple-value-bind (,user ,password) (authorization)
-       (if (authrizedp ,user ,password)
-           (progn ,@body)
-           (require-authorization)))))
+  `(if (loginp)
+       (progn ,@body)
+       (require-authorization)))
 
 (defmacro with-auth.define-actindi.net-template ((name path) (&rest args) contents)
   `(define-easy-handler (,name :uri ,path) ,args
@@ -170,62 +164,80 @@
   (let ((x (ele:get-instance-by-value 'user 'id user)))
     (and x (equal password (user-password x)))))
 
+(defun pager (current-page total url)
+  (with-html-output-to-string (out)
+    (:div :class "content"
+          (:p :class "to_top"
+              (when (< 1 current-page)
+                (htm (:a :href (format nil "~a?page=~d" url (1- current-page))
+                         "前へ")))
+              " | "
+              (when (> (/ total *entries-per-page*)  current-page)
+                (htm (:a :href (format nil "~a?page=~d" url (1+ current-page))
+                         "次へ")))))))
+
 ;; トップページ
 (define-actindi.net-template (root "/") (page)
-  (mapc (lambda (x)
-          (with-html-output (out nil :indent 2)
-            ((:div :class "content")
-             (:h2
-              ((:a :href (entry-path x))
-               (princ (entry-title x) out))
-              )
-             ((:dl :class "date")
-              (:dd (format-date out "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                (entry-date x)))
-              (:dt "区分")
-              (:dd (princ (entry-category x) out))
-              (:dt "報告者: ")
-              (:dd (princ (entry-author x) out))
-              )
-             #|(:p (princ (with-output-to-string (*standard-output*)
-             (describe page))
-             out))|#
-             (:p (princ (entry-body x) out))
-             ((:p :class "to_top")
-              ((:a :href (format nil "~A#disqus_thread" (entry-path x)))
-               ">View Comments")
-              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-              ((:a :href "" :title "") "このページの上へ戻る")))))
-        (let ((page (or (and page (parse-integer page :junk-allowed t)) 1)))
-          (get-entries (* *entries-per-page* (1- page)) *entries-per-page*))))
+  (let ((page (or (and page (parse-integer page :junk-allowed t)) 1)))
+    (mapc (lambda (x)
+            (with-html-output (out nil :indent 2)
+              ((:div :class "content")
+               (:h2
+                ((:a :href (entry-path x))
+                 (princ (entry-title x) out))
+                )
+               ((:dl :class "date")
+                (:dd (format-date out "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
+                                  (entry-date x)))
+                (:dt "区分")
+                (:dd (princ (entry-category x) out))
+                (:dt "報告者: ")
+                (:dd (princ (entry-author x) out))
+                )
+               #|(:p (princ (with-output-to-string (*standard-output*)
+               (describe page))
+               out))|#
+               (:p (princ (entry-body x) out))
+               ((:p :class "to_top")
+                ((:a :href (format nil "~A#disqus_thread" (entry-path x)))
+                 ">View Comments")
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                ((:a :href "" :title "") "このページの上へ戻る")))))
+          (get-entries (* *entries-per-page* (1- page)) *entries-per-page*))
+    (princ (pager page (count-entryes) "/") out)))
 
 (defun make-member-page (name)
   (eval
-   `(define-actindi.net-template (,(intern name) ,(format nil "/~A" name)) ()
-      (mapc (lambda (x)
-              (with-html-output (out nil :indent T)
-                ((:div :class "content")
-                 (:h2
-                  ((:a :href (entry-path x))
-                   (princ (entry-title x) out))
-                  )
-                 ((:dl :class "date")
-                  (:dd (format-date out "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                    (entry-date x)))
-                  (:dt "区分")
-                  (:dd (princ (entry-category x) out))
-                  (:dt "報告者: ")
-                  (:dd (princ (entry-author x) out))
-                  )
-                 (:p (princ (entry-body x) out))
-                 ((:p :class "to_top")
-                  ((:a :href (format nil "~A#disqus_thread" (entry-path x)))
-                   ">View Comments")
-                  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                  ((:a :href "" :title "") "このページの上へ戻る")))))
-            (remove-if-not (lambda (x)
-                             (string= ,name (entry-author x)))
-                           (get-all-entries))))))
+   `(define-actindi.net-template (,(intern name) ,(format nil "/~A" name)) (page)
+      (let ((page (or (and page (parse-integer page :junk-allowed t)) 1)))
+        (mapc (lambda (x)
+                (with-html-output (out nil :indent T)
+                  ((:div :class "content")
+                   (:h2
+                    ((:a :href (entry-path x))
+                     (princ (entry-title x) out))
+                    )
+                   ((:dl :class "date")
+                    (:dd (format-date out "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
+                                      (entry-date x)))
+                    (:dt "区分")
+                    (:dd (princ (entry-category x) out))
+                    (:dt "報告者: ")
+                    (:dd (princ (entry-author x) out))
+                    )
+                   (:p (princ (entry-body x) out))
+                   ((:p :class "to_top")
+                    ((:a :href (format nil "~A#disqus_thread" (entry-path x)))
+                     ">View Comments")
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    ((:a :href "" :title "") "このページの上へ戻る")))))
+              (get-entries-by-author ,name
+                                     (* *entries-per-page* (1- page))
+                                     *entries-per-page*))
+        (princ (pager page (count-entryes-by-author ,name)
+                      (concatenate 'string "/" ,name))
+               out)))))
+
 
 (mapc #'make-member-page
       '("komagata" "machida" "tahara" "masuda" "chiba"))
@@ -238,12 +250,12 @@
 (defun show-entry ()
   (let ((entry (ele:get-instance-by-value 'entry 'path (hunchentoot:request-uri*))))
     (setf (content-type*) "text/html; charset=utf-8")
-    (with-html-output-to-string (out nil :indent T :prologue T)
+    (with-html-output-to-string (out nil :indent T :prologue nil)
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
        (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
               (:title "アクトインディ技術部隊報告書")
-              ((:link :href "http://tech.actindi.net/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
-              ((:link :href "http://tech.actindi.net/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
+              ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
+              ((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
               ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")))
        (:body
         ((:div :id "header")
@@ -279,8 +291,13 @@
                  ((:p :class "to_top")
                   ((:a :href "/") "トップページに戻る")))))
             entry)
-           ((:div :class "footer")
-            "<div id=\"disqus_thread\"></div><script type=\"text/javascript\" src=\"http://disqus.com/forums/actindi/embed.js\"></script><noscript><a href=\"http://actindi.disqus.com/?url=ref\">View the discussion thread.</a></noscript><a href=\"http://disqus.com\" class=\"dsq-brlink\">blog comments powered by <span class=\"logo-disqus\">Disqus</span></a>"))
+           (:div :class "comment"
+                 "<div id=\"disqus_thread\"></div><script type=\"text/javascript\" src=\"http://disqus.com/forums/actindi/embed.js\"></script><noscript><a href=\"http://actindi.disqus.com/?url=ref\">View the discussion thread.</a></noscript><a href=\"http://disqus.com\" class=\"dsq-brlink\">blog comments powered by <span class=\"logo-disqus\">Disqus</span></a>")
+           (:div :class "footer"
+                 (:a :href (concatenate 'string
+                                        (hunchentoot:request-uri*)
+                                        "/edit")
+                     :class "edit" "編集")))
           ((:div :id "local_nav")
            ((:div :id "counter")
             (:dl
@@ -288,7 +305,7 @@
              (:dd (format out
                           "~A名"
                           (number-to-kanji (incf-counter))))))
-           #|(:princ *top-member*)|#))
+           (princ *top-member* out)))
          ;; ads
          ((:div :id "foo_ads")
           ((:div :id "categories")
@@ -303,7 +320,7 @@
             ((:a :href "" :title "") "アクトインディ")))
           ;; poster
           ((:div :class "poster")
-           ((:img :src "images/poster_01.jpg" :alt "aaaa"))))))))))
+           ((:img :src "/images/poster_01.jpg" :alt "aaaa"))))))))))
 
 (defun trim (x)
   (and x (string-trim '(#\Space #\Tab #\Newline) x)))
@@ -340,16 +357,16 @@
        (with-html-output (out nil :indent nil)
          ((:input :type "hidden" :name "path" :value path))))
      (:div
-      ((:label :for "title") "題名")
+      ((:label :for "title") "題名") (:br)
       ((:input :type "text" :name "title" :value title)))
      (:div
-      ((:label :for "author") "報告者")
+      ((:label :for "author") "報告者") (:br)
       ((:input :type "text" :name "author" :value author)))
      (:div
-      ((:label :for "category") "区分")
+      ((:label :for "category") "区分") (:br)
       ((:input :type "text" :name "category" :value category)))
      (:div
-      ((:label :for "body") "本文")
+      ((:label :for "body") "本文") (:br)
       ((:textarea :cols 30 :rows 15 :name "body")
        (format out "~a" (trim (or body "")))))
      (:div ((:input :type "submit" :value "投稿"))))))
@@ -380,20 +397,21 @@
 
 (defun entry-edit ()
   (with-authorization
-    (ppcre:register-groups-bind (path)
-        ("(/[0-9]+)/edit$" (hunchentoot:request-uri*))
-      (let ((entry (ele:get-instance-by-value 'entry 'path path)))
-        (with-html-output-to-string (out)
-          ((:div :class "content")
-           (:h2 "投稿")
-           (if *errors*
-               (format out "~a" *errors*))
-           (entry-form out "/entry/update"
-                       path
-                       (entry-title entry)
-                       (entry-author entry)
-                       (entry-category entry)
-                       (entry-body entry))))))))
+    (with-defalut-template
+      (ppcre:register-groups-bind (path)
+          ("(/[0-9]+)/edit$" (hunchentoot:request-uri*))
+        (let ((entry (ele:get-instance-by-value 'entry 'path path)))
+          (with-html-output (out)
+            ((:div :class "content")
+             (:h2 "投稿")
+             (if *errors*
+                 (format out "~a" *errors*))
+             (entry-form out "/entry/update"
+                         path
+                         (entry-title entry)
+                         (entry-author entry)
+                         (entry-category entry)
+                         (entry-body entry)))))))))
 
 (with-auth.define-actindi.net-template (entry-update "/entry/update")
   (path title author category body)
@@ -415,8 +433,6 @@
         (flex:make-external-format :utf-8 :eol-style :lf))
   (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
   ;; *acceptor*
-  (setq hunchentoot:*show-lisp-errors-p* t
-        hunchentoot:*handle-http-errors-p* nil)
   (setq *server* (make-instance 'hunchentoot:acceptor :port port))
   (start *server*))
 
