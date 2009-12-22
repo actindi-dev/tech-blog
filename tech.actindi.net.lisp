@@ -1,7 +1,7 @@
 (in-package :tech.actindi.net)
 
 (defvar *errors* nil)
-(defvar *entries-per-page* 2)
+(defvar *entries-per-page* 10)
 (defparameter *default-directory* (directory-namestring *load-truename*))
 
 (defun number-to-kanji (num)
@@ -73,7 +73,8 @@
       (:li ((:a :href "/chiba") "chiba")))
      ((:p :class "to_actindi")
       ((:a :href "http://www.actindi.com")
-       "アクトインディへ")))))
+       "アクトインディへ")))
+    (:a :href "/entry/new" "投稿する")))
 
 ;; お知らせ
 (defparameter *block-news*
@@ -153,13 +154,14 @@
   `(define-easy-handler (,name :uri ,path) ,args
      (with-defalut-template ,contents)))
 
+(defun loginp ()
+  (multiple-value-bind (user password) (authorization)
+    (authrizedp user password)))
+
 (defmacro with-authorization (&body body)
-  (let ((user (gensym))
-        (password (gensym)))
-    `(multiple-value-bind (,user ,password) (authorization)
-       (if (authrizedp ,user ,password)
-           (progn ,@body)
-           (require-authorization)))))
+  `(if (loginp)
+       (progn ,@body)
+       (require-authorization)))
 
 (defmacro with-auth.define-actindi.net-template ((name path) (&rest args) contents)
   `(define-easy-handler (,name :uri ,path) ,args
@@ -294,7 +296,11 @@
                   ((:a :href "/") "トップページに戻る")))))
             entry)
            ((:div :class "footer")
-            "<div id=\"disqus_thread\"></div><script type=\"text/javascript\" src=\"http://disqus.com/forums/actindi/embed.js\"></script><noscript><a href=\"http://actindi.disqus.com/?url=ref\">View the discussion thread.</a></noscript><a href=\"http://disqus.com\" class=\"dsq-brlink\">blog comments powered by <span class=\"logo-disqus\">Disqus</span></a>"))
+            "<div id=\"disqus_thread\"></div><script type=\"text/javascript\" src=\"http://disqus.com/forums/actindi/embed.js\"></script><noscript><a href=\"http://actindi.disqus.com/?url=ref\">View the discussion thread.</a></noscript><a href=\"http://disqus.com\" class=\"dsq-brlink\">blog comments powered by <span class=\"logo-disqus\">Disqus</span></a>")
+           (:a :href (concatenate 'string
+                                  (hunchentoot:request-uri*)
+                                  "/edit")
+               "編集"))
           ((:div :id "local_nav")
            ((:div :id "counter")
             (:dl
