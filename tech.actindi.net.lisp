@@ -302,7 +302,7 @@
              (:dd (format out
                           "~A名"
                           (number-to-kanji (incf-counter))))))
-           #|(:princ *top-member*)|#))
+           (princ *top-member* out)))
          ;; ads
          ((:div :id "foo_ads")
           ((:div :id "categories")
@@ -354,16 +354,16 @@
        (with-html-output (out nil :indent nil)
          ((:input :type "hidden" :name "path" :value path))))
      (:div
-      ((:label :for "title") "題名")
+      ((:label :for "title") "題名") (:br)
       ((:input :type "text" :name "title" :value title)))
      (:div
-      ((:label :for "author") "報告者")
+      ((:label :for "author") "報告者") (:br)
       ((:input :type "text" :name "author" :value author)))
      (:div
-      ((:label :for "category") "区分")
+      ((:label :for "category") "区分") (:br)
       ((:input :type "text" :name "category" :value category)))
      (:div
-      ((:label :for "body") "本文")
+      ((:label :for "body") "本文") (:br)
       ((:textarea :cols 30 :rows 15 :name "body")
        (format out "~a" (trim (or body "")))))
      (:div ((:input :type "submit" :value "投稿"))))))
@@ -394,20 +394,21 @@
 
 (defun entry-edit ()
   (with-authorization
-    (ppcre:register-groups-bind (path)
-        ("(/[0-9]+)/edit$" (hunchentoot:request-uri*))
-      (let ((entry (ele:get-instance-by-value 'entry 'path path)))
-        (with-html-output-to-string (out)
-          ((:div :class "content")
-           (:h2 "投稿")
-           (if *errors*
-               (format out "~a" *errors*))
-           (entry-form out "/entry/update"
-                       path
-                       (entry-title entry)
-                       (entry-author entry)
-                       (entry-category entry)
-                       (entry-body entry))))))))
+    (with-defalut-template
+      (ppcre:register-groups-bind (path)
+          ("(/[0-9]+)/edit$" (hunchentoot:request-uri*))
+        (let ((entry (ele:get-instance-by-value 'entry 'path path)))
+          (with-html-output (out)
+            ((:div :class "content")
+             (:h2 "投稿")
+             (if *errors*
+                 (format out "~a" *errors*))
+             (entry-form out "/entry/update"
+                         path
+                         (entry-title entry)
+                         (entry-author entry)
+                         (entry-category entry)
+                         (entry-body entry)))))))))
 
 (with-auth.define-actindi.net-template (entry-update "/entry/update")
   (path title author category body)
