@@ -80,7 +80,7 @@
 
 ;; テンプレート
 (defmacro with-defalut-template (&body contents)
-  `(with-html-output-to-string (out nil :indent T :prologue T)
+  `(with-html-output-to-string (out nil :indent T :prologue nil)
      ((:html :xmlns "http://www.w3.org/1999/xhtml")
       (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
              (:title "アクトインディ技術部隊報告書")
@@ -246,7 +246,7 @@
 (defun show-entry ()
   (let ((entry (ele:get-instance-by-value 'entry 'path (hunchentoot:request-uri*))))
     (setf (content-type*) "text/html; charset=utf-8")
-    (with-html-output-to-string (out nil :indent T :prologue T)
+    (with-html-output-to-string (out nil :indent T :prologue nil)
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
        (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
               (:title "アクトインディ技術部隊報告書")
