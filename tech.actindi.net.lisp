@@ -170,34 +170,48 @@
   (let ((x (ele:get-instance-by-value 'user 'id user)))
     (and x (equal password (user-password x)))))
 
+(defun pager (current-page)
+  (let ((total (count-entryes)))
+    (with-html-output-to-string (out)
+      (:div :class "content"
+            (:p :class "to_top"
+                (when (< 1 current-page)
+                  (htm (:a :href (format nil "/?page=~d" (1- current-page))
+                           "前へ")))
+                " | "
+                (when (> (/ total *entries-per-page*)  current-page)
+                  (htm (:a :href (format nil "/?page=~d" (1+ current-page))
+                           "次へ"))))))))
+
 ;; トップページ
 (define-actindi.net-template (root "/") (page)
-  (mapc (lambda (x)
-          (with-html-output (out nil :indent 2)
-            ((:div :class "content")
-             (:h2
-              ((:a :href (entry-path x))
-               (princ (entry-title x) out))
-              )
-             ((:dl :class "date")
-              (:dd (format-date out "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                (entry-date x)))
-              (:dt "区分")
-              (:dd (princ (entry-category x) out))
-              (:dt "報告者: ")
-              (:dd (princ (entry-author x) out))
-              )
-             #|(:p (princ (with-output-to-string (*standard-output*)
-             (describe page))
-             out))|#
-             (:p (princ (entry-body x) out))
-             ((:p :class "to_top")
-              ((:a :href (format nil "~A#disqus_thread" (entry-path x)))
-               ">View Comments")
-              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-              ((:a :href "" :title "") "このページの上へ戻る")))))
-        (let ((page (or (and page (parse-integer page :junk-allowed t)) 1)))
-          (get-entries (* *entries-per-page* (1- page)) *entries-per-page*))))
+  (let ((page (or (and page (parse-integer page :junk-allowed t)) 1)))
+    (mapc (lambda (x)
+            (with-html-output (out nil :indent 2)
+              ((:div :class "content")
+               (:h2
+                ((:a :href (entry-path x))
+                 (princ (entry-title x) out))
+                )
+               ((:dl :class "date")
+                (:dd (format-date out "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
+                                  (entry-date x)))
+                (:dt "区分")
+                (:dd (princ (entry-category x) out))
+                (:dt "報告者: ")
+                (:dd (princ (entry-author x) out))
+                )
+               #|(:p (princ (with-output-to-string (*standard-output*)
+               (describe page))
+               out))|#
+               (:p (princ (entry-body x) out))
+               ((:p :class "to_top")
+                ((:a :href (format nil "~A#disqus_thread" (entry-path x)))
+                 ">View Comments")
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                ((:a :href "" :title "") "このページの上へ戻る")))))
+          (get-entries (* *entries-per-page* (1- page)) *entries-per-page*))
+    (princ (pager page) out)))
 
 (defun make-member-page (name)
   (eval

@@ -49,6 +49,13 @@
     (reverse result)))
 ;;(get-entries 0 3)
 
+(defun count-entryes ()
+  (let ((total 0))
+    (ele:map-class (lambda (x) (declare (ignore x)) (incf total))
+                   'entry :oids t)
+    total))
+;;(count-entryes)
+
 (defun incf-counter ()
   (let ((counter (or (ele:get-from-root 'counter) 0)))
     (prog1 (incf counter)
