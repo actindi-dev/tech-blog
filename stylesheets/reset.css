@@ -1,0 +1,112 @@
+@charset "utf-8";
+/* CSS Document */
+
+ /*
+ ブラウザの初期設定をリセットする為のCSS
+ */ 
+  
+ /* --clearfix-- */  
+.clearfix:after {
+  content: ".";  /* 新しい要素を作る */
+  display: block;  /* ブロックレベル要素に */
+  clear: both;
+  height: 0;
+  visibility: hidden;
+}
+
+.clearfix {
+  min-height: 1px;
+}
+
+* html .clearfix {
+  height: 1px;
+  /*¥*//*/
+  height: auto;
+  overflow: hidden;
+  /**/
+}
+
+ /* --HTML-- */ 
+ html {
+	color:#e2d79e;
+	overflow-y:scroll;
+ } 
+  
+ /* --BODY-- */ 
+ body {
+	font:12px/1.5 'Lucida Grande',Arial,Helvetica,Verdana,'メイリオ', 'ＭＳ Ｐゴシック','ヒラギノ明朝 Pro W3','Hiragino Mincho Pro',sans-serif;
+	margin:0;
+	overflow:visible;
+	padding:0;
+	background-color: #000000;
+ } 
+  
+ /* for IE7 */ 
+ *+html body { 
+ font-size:75%; 
+ } 
+  
+ /* for IE6 */ 
+ * html body { 
+ font-size:75%; 
+ } 
+  
+ /* --OTHER TAGS-- */ 
+ a img, fieldset, img { 
+ border:0; 
+ } 
+  
+ blockquote, dd, div, dl, dt, fieldset, form, 
+ h1, h2, h3, h4, h5, h6, input, li, ol, p, pre, 
+ select, span, textarea, td, th, ul {
+	margin:0;
+	padding:0;
+ } 
+  
+ abbr, acronym { 
+ border:0; 
+ } 
+  
+ address, caption, cite, code, dfn, em, th, strong, var { 
+ font-style:normal; 
+ font-weight:normal; 
+ } 
+  
+ caption, th { 
+ text-align:left; 
+ } 
+  
+ code, kbd, pre, samp, tt { 
+ font-family:monospace; 
+ line-height:100%; 
+ } 
+  
+ /* for IE7 */ 
+ *+html code, kbd, pre, samp, tt { 
+ font-size:108%; 
+ } 
+  
+ h1, h2, h3, h4, h5, h6 { 
+ font-size:100%; 
+ font-weight:normal; 
+ } 
+  
+ input, select, textarea{ 
+ font-size:100%; 
+ font-family:'Lucida Grande',Arial,Helvetica,Verdana,'メイリオ', 'ＭＳ Ｐゴシック','ヒラギノ明朝 Pro W3','Hiragino Mincho Pro',sans-serif; 
+ } 
+  
+ ol, ul { 
+ list-style:none; 
+ } 
+  
+ q:before, q:after { 
+ content:''; 
+ } 
+  
+ /* tables still need 'cellspacing="0"' */ 
+ table { 
+ border-collapse:collapse; 
+ border-spacing:0; 
+ font-size:100%; 
+ }  

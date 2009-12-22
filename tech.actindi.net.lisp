@@ -2,7 +2,6 @@
 
 (defvar *errors* nil)
 (defvar *entries-per-page* 10)
-(defparameter *default-directory* (directory-namestring *load-truename*))
 
 (defun number-to-kanji (num)
   (let ((digit   #("零" "一" "二" "三" "四" "五" "六" "七" "八" "九"))
@@ -22,17 +21,6 @@
           when value appending (cons (aref unit i) value) into result
           do (setf num n)
           finally (return (apply #'concatenate (cons 'string (reverse result)))))))
-
-;; CSS
-(define-easy-handler (reset.css :uri "/stylesheets/reset.css") ()
-  (setf (content-type*) "text/css")
-  (kmrcl:read-file-to-string
-   (merge-pathnames "reset.css" *default-directory*)))
-
-(define-easy-handler (basic.css :uri "/stylesheets/basic.css") ()
-  (setf (content-type*) "text/css")
-  (kmrcl:read-file-to-string
-   (merge-pathnames "basic.css" *default-directory*)))
 
 ;; RSS
 (define-easy-handler (|/rss.xml| :uri "/rss.xml") ()
@@ -56,7 +44,13 @@
                  (format-date out "<pubDate>%a, %d %b %Y %H:%M:%S +0900</pubDate>" (entry-date x)))))
             (get-all-entries))))))
 
-(setq *dispatch-table* '(dispatch-easy-handlers default-dispatcher))
+(setq *dispatch-table*
+      `(,(hunchentoot:create-folder-dispatcher-and-handler
+          "/stylesheets/" (merge-pathnames "stylesheets/" *default-directory*))
+         ,(hunchentoot:create-folder-dispatcher-and-handler
+           "/images/" (merge-pathnames "images/" *default-directory*))
+         dispatch-easy-handlers
+         default-dispatcher))
 
 ;; メンバー一覧
 (defparameter *top-member*
@@ -90,10 +84,8 @@
      ((:html :xmlns "http://www.w3.org/1999/xhtml")
       (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
              (:title "アクトインディ技術部隊報告書")
-             ((:link :href "http://tech.actindi.net/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
-             ((:link :href "http://tech.actindi.net/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
-             #|((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))|#
-             #|((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))|#
+             ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
+             ((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
              ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")))
       (:body
        ((:div :id "header")
@@ -133,7 +125,7 @@
           ((:p :class "to_actindi")
            ((:a :href "" :title "") "アクトインディ")))
          ((:div :class "poster")
-          ((:img :src "images/poster_01.jpg" :alt "aaaa")))
+          ((:img :src "/images/poster_01.jpg" :alt "aaaa")))
          ((:script :type "text/javascript")
           "//<![CDATA["
           "(function() {
@@ -323,7 +315,7 @@
             ((:a :href "" :title "") "アクトインディ")))
           ;; poster
           ((:div :class "poster")
-           ((:img :src "images/poster_01.jpg" :alt "aaaa"))))))))))
+           ((:img :src "/images/poster_01.jpg" :alt "aaaa"))))))))))
 
 (defun trim (x)
   (and x (string-trim '(#\Space #\Tab #\Newline) x)))
