@@ -428,8 +428,6 @@
         (flex:make-external-format :utf-8 :eol-style :lf))
   (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
   ;; *acceptor*
-  (setq hunchentoot:*show-lisp-errors-p* t
-        hunchentoot:*handle-http-errors-p* nil)
   (setq *server* (make-instance 'hunchentoot:acceptor :port port))
   (start *server*))
 
