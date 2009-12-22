@@ -250,8 +250,8 @@
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
        (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
               (:title "アクトインディ技術部隊報告書")
-              ((:link :href "http://tech.actindi.net/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
-              ((:link :href "http://tech.actindi.net/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
+              ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
+              ((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
               ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")))
        (:body
         ((:div :id "header")
@@ -287,12 +287,13 @@
                  ((:p :class "to_top")
                   ((:a :href "/") "トップページに戻る")))))
             entry)
-           ((:div :class "footer")
-            "<div id=\"disqus_thread\"></div><script type=\"text/javascript\" src=\"http://disqus.com/forums/actindi/embed.js\"></script><noscript><a href=\"http://actindi.disqus.com/?url=ref\">View the discussion thread.</a></noscript><a href=\"http://disqus.com\" class=\"dsq-brlink\">blog comments powered by <span class=\"logo-disqus\">Disqus</span></a>")
-           (:a :href (concatenate 'string
-                                  (hunchentoot:request-uri*)
-                                  "/edit")
-               "編集"))
+           (:div :class "comment"
+                 "<div id=\"disqus_thread\"></div><script type=\"text/javascript\" src=\"http://disqus.com/forums/actindi/embed.js\"></script><noscript><a href=\"http://actindi.disqus.com/?url=ref\">View the discussion thread.</a></noscript><a href=\"http://disqus.com\" class=\"dsq-brlink\">blog comments powered by <span class=\"logo-disqus\">Disqus</span></a>")
+           (:div :class "footer"
+                 (:a :href (concatenate 'string
+                                        (hunchentoot:request-uri*)
+                                        "/edit")
+                     :class "edit" "編集")))
           ((:div :id "local_nav")
            ((:div :id "counter")
             (:dl

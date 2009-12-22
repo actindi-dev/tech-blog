@@ -322,6 +322,7 @@
 	background-image: url(../images/footer.gif);
 	background-position: left bottom;
 	height: 40px;
+	padding-left: 14px;
 }
 #footer {
 	margin-right: auto;
@@ -369,4 +370,8 @@
 #cotents .content blockquote a:hover,
 #cotents .content blockquote a:active {
 	color: #CC0000;
+}
+
+.comment {
+	padding-left: 14px;
 }
