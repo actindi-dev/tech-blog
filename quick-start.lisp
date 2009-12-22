@@ -1,3 +1,5 @@
+;;; -*- Mode: common-lisp; Lowercase: t; -*-
+
 (asdf:oos 'asdf:load-op :tech.actindi.net)
 
 ;; ファイルの置かれているディレクトリを設定
@@ -12,3 +14,4 @@
   
   ;; 過去の記事を読み込み
   (load "blog"))
+
