@@ -197,11 +197,11 @@ No non-free packages installed on dev!  rms would be proud.")
 (defentry "/3458279064" (:title "CSSはウェブページの命" :author "chiba" :category "blog制作" :date 3458279064)
   "駄目なページでもスタイルシートを当てるとそれなりに見えるのは不思議ですね。" )
 
-;; 14
-(defentry "/3458280064" (:title "エントリーを後でどういう風に修正したら良いか" :author "chiba" :category "blog制作" :date 3458280064)
-  (:p "エントリーを後でどういう風に修正したら良いか"
-      (:br)
-      "めんどくさそうです。"))
+;; 14 12 と重複しているのでいらない。
+;; (defentry "/3458280064" (:title "エントリーを後でどういう風に修正したら良いか" :author "chiba" :category "blog制作" :date 3458280064)
+;;   (:p "エントリーを後でどういう風に修正したら良いか"
+;;       (:br)
+;;       "めんどくさそうです。"))
 
 ;; 15
 (defentry "/3458279537" (:title "URLを毎度決めている" :date 3458279537  :author "chiba" :category "blog制作")
