@@ -43,3 +43,29 @@ db ディレクトリの下に blog.db という名前で SQLite3 のファイ�
 sbcl --load exe.lisp
 
 tech-blog という実行ファイルが作成される。
+
+
+
+* アップのしかた
+
+ssh deployer@satsuma
+cd ~/clbuild/source/tech-blog
+sbcl --load "exe.lisp"    # 実行ファイル作成
+scp tech-blog deployer@its.actindi.net:/var/www/tech/
+scp -r stylesheets images db deployer@its.actindi.net:/var/www/tech/
+
+* 動かしかた
+
+何故か screen だとだめだったので tmux を使ってます。
+
+ssh deployer@its.actindi.net
+cd /var/www/tech
+
+まだ起動していない場合
+tmux
+./tech-blog
+
+既に起動している場合
+tmux attach
+C-c
+./tech-blog
