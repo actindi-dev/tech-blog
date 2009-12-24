@@ -25,19 +25,21 @@ config.lisp の *default-directory* を設定してください。
 (defparameter *default-directory* "/home/deployer/clbuild/source/tech-blog/")
 
 
-* 実行
+* データ移行
 
-** 最初の1回目
-
-最初の1回目はデータ移行と初期データの投入を行うために
-(load "quick-start.lisp")
-を実行してください。
-
-** 2回目移行
-
-sbcl --eval '(progn (require :tech.actindi.net) (funcall (read-from-string "tech.actindi.net:start-tech.actindi.net")))'
+(load "quick-start.lisp") を実行してください。
 
 
-* 停止
+* 実行ファイルの作り方
 
-(tech.actindi.net:stop-tech.actindi.net)
+config.lisp で次のパラメータを設定する。
+(defparameter *default-directory* "/var/www/tech-blog/"
+  "stylesheets, images, db ディレクトリを配置するディレクトリ。
+db ディレクトリの下に blog.db という名前で SQLite3 のファイルが作成される。")
+(defparameter *http-port* 8889 "HTTP のポート")
+(defparameter *swank-port* 4009 "SLIME のポート")
+
+次のコマンドを実行する。
+sbcl --load exe.lisp
+
+tech-blog という実行ファイルが作成される。

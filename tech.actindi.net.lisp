@@ -425,7 +425,7 @@
 (defvar *server*)
 
 ;; start
-(defun start-tech.actindi.net (&key (port 8888))
+(defun start-tech.actindi.net (&key (port *http-port*))
   ;; elephant のストアをオープンする。
   (ele:open-store *store-spec*)
   ;;(LOAD (MERGE-PATHNAMES *DEFAULT-DIRECTORY* "blog.lisp"))

@@ -9,4 +9,6 @@
                :cl-who
                :hunchentoot
                :kmrcl
-               :elephant))
+               :elephant
+               :ele-clsql
+               :clsql-sqlite3))
