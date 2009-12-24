@@ -1,3 +1,5 @@
+;;; -*- Mode: common-lisp; Lowercase: t; -*-
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (asdf:oos 'asdf:load-op :tech.actindi.net))
 
@@ -19,3 +21,5 @@
 
   ;; 本頁の来客数の初期値を設定
   (ele:add-to-root 'tech.actindi.net::counter 8415))
+
+
