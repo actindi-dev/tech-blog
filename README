@@ -64,8 +64,10 @@ cd /var/www/tech
 まだ起動していない場合
 tmux
 ./tech-blog
+C-b d  でデタッチ
 
 既に起動している場合
-tmux attach
-C-c
+tmux attach  でアタッチ
+C-c  で tech-blog を停止
 ./tech-blog
+C-b d  でデタッチ
