@@ -253,7 +253,9 @@
     (with-html-output-to-string (out nil :indent T :prologue nil)
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
        (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
-              (:title "アクトインディ技術部隊報告書")
+              (:title (format out 
+                              "~A | アクトインディ技術部隊報告書"
+                              (entry-title entry)))
               ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
               ((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
               ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")))
