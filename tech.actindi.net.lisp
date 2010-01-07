@@ -78,6 +78,9 @@
           "お知らせ")
      (:p "インフルエンザに気をつけて頑張っています"))))
 
+(defparameter *twitter*
+  "こんにちは!!、こんにちは!! C0: <script type=\"text/javascript\" src=\"http://cov.actindi.net/cov.cgi\"></script>%")
+
 ;; テンプレート
 (defmacro with-defalut-template (&body contents)
   `(with-html-output-to-string (out nil :indent T :prologue nil)
@@ -92,7 +95,7 @@
         ((:div :class "inner")
          ((:div :class "twitter")
           ((:h2 :class "design") "twitter")
-          (:p "こんにちは!!、こんにちは!!、こんにちは!!"))
+          (:p (str *twitter*)))
          ((:h1 :class "design_a")
           ((:a :href "" :title "") "タイトル"))
          ((:ol :id "bread_crumbs")
@@ -264,7 +267,7 @@
          ((:div :class "inner")
           ((:div :class "twitter")
            ((:h2 :class "design") "twitter")
-           (:p "こんにちは!!、こんにちは!!、こんにちは!!"))
+           (:p (str *twitter*)))
           ((:h1 :class "design_a")
            ((:a :href "" :title "") "タイトル"))
           ((:ol :id "bread_crumbs")
