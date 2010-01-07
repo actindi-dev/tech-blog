@@ -60,11 +60,12 @@
      ((:p :class "title")
       "アクトインディ技師部隊員名簿")
      (:ul
+      (:li ((:a :href "/uemura") "uemura"))
       (:li ((:a :href "/komagata") "komagata"))
       (:li ((:a :href "/machida") "machida"))
       (:li ((:a :href "/masuda") "masuda"))
-      (:li ((:a :href "/tahara") "tahara"))
-      (:li ((:a :href "/chiba") "chiba")))
+      (:li ((:a :href "/chiba") "chiba"))
+      (:li ((:a :href "/tahara") "tahara")))
      ((:p :class "to_actindi")
       ((:a :href "http://www.actindi.com")
        "アクトインディへ")))
@@ -243,7 +244,7 @@
 
 
 (mapc #'make-member-page
-      '("komagata" "machida" "tahara" "masuda" "chiba"))
+      '("uemura" "komagata" "machida" "tahara" "masuda" "chiba"))
 
 (defvar *show-entry-dispatcher*
   (hunchentoot:create-regex-dispatcher "/[0-9]+$" 'show-entry))

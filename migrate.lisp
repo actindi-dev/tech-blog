@@ -46,11 +46,12 @@
 (defun make-initial-user ()
   (loop for (u p) on (mapcar (lambda (x)
                                (string-downcase (symbol-name x)))
-                             '(komagata komagata1234
+                             '(uemura   uemura1234
+                               komagata komagata1234
                                machida  machida1234
                                masuda   masuda1234
-                               tahara   tahara1234
-                               chiba    chiba1234))
+                               chiba    chiba1234
+                               tahara   tahara1234))
         by #'cddr
         do (make-instance 'user :id u :password p)))
 
