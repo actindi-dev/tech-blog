@@ -430,6 +430,22 @@
 
 (defvar *server*)
 
+(defclass my-acceptor (hunchentoot:acceptor)
+  ((lock :initform (bt:make-lock))))
+
+(defmethod process-connection :around ((self my-acceptor) (socket t))
+  "Elephant はスレッド毎に DB の接続をオープンするが、それをハッシュテーブルに保持したままクローズしようとしない。
+Hunchentoot はリクエスト毎にスレッドを作って使い捨てている。
+ということで、リクエストが完了した時点で DB クローズ行うようにする。"
+  (unwind-protect
+       (call-next-method)
+    (bt:with-lock-held ((slot-value self 'lock))
+      (let* ((dbcons (db-clsql::controller-db-table elephant:*store-controller*))
+             (db (gethash (bt:current-thread) dbcons)))
+        (when (db-clsql::connection-ok-p-con db)
+          (clsql-sys:disconnect :database db))
+        (remhash (bt:current-thread) dbcons)))))
+
 ;; start
 (defun start-tech.actindi.net (&key (port *http-port*))
   ;; elephant のストアをオープンする。
@@ -439,7 +455,7 @@
         (flex:make-external-format :utf-8 :eol-style :lf))
   (setq hunchentoot:*default-content-type* "text/html; charset=utf-8")
   ;; *acceptor*
-  (setq *server* (make-instance 'hunchentoot:acceptor :port port))
+  (setq *server* (make-instance 'my-acceptor :port port))
   (start *server*))
 
 ;; stop
@@ -447,3 +463,7 @@
   (stop *server*)
   ;; elephant のストアをクローズする。
   (ele:close-store))
+
+
+(define-easy-handler (a :uri "/a") ()
+  (prin1-to-string (get-all-entries)))
