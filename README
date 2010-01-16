@@ -48,8 +48,9 @@ tech-blog という実行ファイルが作成される。
 
 * アップのしかた
 
-ssh deployer@satsuma
+ssh deployer@satsuma.actindi.net
 cd ~/clbuild/source/tech-blog
+git pull
 sbcl --load "exe.lisp"    # 実行ファイル作成
 scp tech-blog deployer@its.actindi.net:/var/www/tech/
 scp -r stylesheets images db deployer@its.actindi.net:/var/www/tech/
