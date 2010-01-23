@@ -90,7 +90,21 @@
              (:title "アクトインディ技術部隊報告書")
              ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
              ((:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css"))
-             ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")))
+             ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog"))
+             ((:script :type "text/javascript"
+                       :src "http://s.hatena.ne.jp/js/HatenaStar.js")
+              "Hatena.Star.Token = 'cf59d5b3db097a760443474ddf49026f6c5e40f3';")
+             ;; cf. http://d.hatena.ne.jp/hatenastar/20070707
+             ((:script :type "text/javascript")
+              "Hatena.Star.SiteConfig = {
+  entryNodes: {
+    'div.content': {
+      uri: 'h2 a',
+      title: 'h2',
+      container: 'h2'
+    }
+  }
+};"))
       (:body
        ((:div :id "header")
         ((:div :class "inner")
