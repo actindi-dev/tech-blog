@@ -61,11 +61,14 @@
       "アクトインディ技師部隊員名簿")
      (:ul
       (:li ((:a :href "/uemura") "uemura"))
+      (:li ((:a :href "/tahara") "tahara"))
+      (:li ((:a :href "/chiba") "chiba")))
+     ((:p :class "title")
+      "アクトインディ技師部元隊員")
+     (:ul
       (:li ((:a :href "/komagata") "komagata"))
       (:li ((:a :href "/machida") "machida"))
-      (:li ((:a :href "/masuda") "masuda"))
-      (:li ((:a :href "/chiba") "chiba"))
-      (:li ((:a :href "/tahara") "tahara")))
+      (:li ((:a :href "/masuda") "masuda")))
      ((:p :class "to_actindi")
       ((:a :href "http://www.actindi.com")
        "アクトインディへ")))
@@ -77,7 +80,7 @@
     ((:div :id "news")
      (:h2 "技師部隊からの" :br
           "お知らせ")
-     (:p "インフルエンザに気をつけて頑張っています"))))
+     (:p "子供とおでかけ頑張っています" ((:a :href "http://iko-yo.net/") "iko-yo.net")))))
 
 (defparameter *twitter*
   "こんにちは!!、こんにちは!! C0: <script type=\"text/javascript\" src=\"http://cov.actindi.net/cov.cgi\"></script>%")
@@ -158,7 +161,7 @@
 	})();"
           "//]]>"))))
       ((:div :id "footer")
-       ((:p :class "center") "Copyright &copy; 2009 アクトインディ All rights reserved.")))))
+       ((:p :class "center") "Copyright &copy; 2010 アクトインディ All rights reserved.")))))
 
 (defmacro define-actindi.net-template ((name path) (&rest args) contents)
   `(define-easy-handler (,name :uri ,path) ,args
