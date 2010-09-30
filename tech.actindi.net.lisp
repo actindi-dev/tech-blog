@@ -269,12 +269,14 @@
 (pushnew *show-entry-dispatcher* hunchentoot:*dispatch-table*)
 
 (defun show-entry ()
-  (let ((entry (ele:get-instance-by-value 'entry 'path (hunchentoot:request-uri*))))
+  (let* ((uri (hunchentoot:request-uri*))
+         (path (subseq uri 0 (position #\? uri)))
+         (entry (ele:get-instance-by-value 'entry 'path path)))
     (setf (content-type*) "text/html; charset=utf-8")
     (with-html-output-to-string (out nil :indent T :prologue nil)
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
        (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
-              (:title (format out 
+              (:title (format out
                               "~A | アクトインディ技術部隊報告書"
                               (entry-title entry)))
               ((:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css"))
@@ -282,7 +284,7 @@
               ((:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog"))
               ((:script :type "text/javascript"
                         :src "http://s.hatena.ne.jp/js/HatenaStar.js")
-              "Hatena.Star.Token = 'cf59d5b3db097a760443474ddf49026f6c5e40f3';")
+               "Hatena.Star.Token = 'cf59d5b3db097a760443474ddf49026f6c5e40f3';")
               ((:script :type "text/javascript")
                "Hatena.Star.SiteConfig = {
   entryNodes: {
