@@ -62,13 +62,14 @@
      (:ul
       (:li ((:a :href "/uemura") "uemura"))
       (:li ((:a :href "/tahara") "tahara"))
-      (:li ((:a :href "/chiba") "chiba")))
+)
      ((:p :class "title")
       "アクトインディ技師部元隊員")
      (:ul
       (:li ((:a :href "/komagata") "komagata"))
       (:li ((:a :href "/machida") "machida"))
-      (:li ((:a :href "/masuda") "masuda")))
+      (:li ((:a :href "/masuda") "masuda"))
+      (:li ((:a :href "/chiba") "chiba")))
      ((:p :class "to_actindi")
       ((:a :href "http://www.actindi.com")
        "アクトインディへ")))
@@ -83,7 +84,7 @@
      (:p "子供とおでかけ頑張っています" ((:a :href "http://iko-yo.net/") "iko-yo.net")))))
 
 (defparameter *twitter*
-  "こんにちは!!、こんにちは!! C0: <script type=\"text/javascript\" src=\"http://cov.actindi.net/cov.cgi\"></script>%")
+  "こんにちは!!、こんにちは!!")
 
 ;; テンプレート
 (defmacro with-defalut-template (&body contents)
@@ -144,6 +145,8 @@
                            (princ (entry-title x) out)))))
                  (get-all-entries)))
           ((:p :class "to_actindi")
+           "アクトインディ"
+           #+comment-out
            ((:a :href "" :title "") "アクトインディ")))
          ((:div :class "poster")
           ((:img :src "/images/poster_01.jpg" :alt "aaaa")))
