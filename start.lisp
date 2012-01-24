@@ -1,4 +1,7 @@
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (require :tech.actindi.net))
+;;; The following lines added by ql:add-to-init-file:
+(load (merge-pathnames "quicklisp/setup.lisp"
+                       (user-homedir-pathname)))
+
+(require :tech.actindi.net)
 
 (tech.actindi.net:start-tech.actindi.net)
