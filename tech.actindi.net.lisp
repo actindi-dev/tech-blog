@@ -467,7 +467,7 @@
 
 (defvar *server*)
 
-(defclass my-acceptor (hunchentoot:acceptor)
+(defclass my-acceptor (hunchentoot:easy-acceptor)
   ((lock :initform (bt:make-lock))))
 
 (defmethod process-connection :around ((self my-acceptor) (socket t))
