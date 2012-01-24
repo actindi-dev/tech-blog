@@ -5,3 +5,5 @@
 (require :tech.actindi.net)
 
 (tech.actindi.net:start-tech.actindi.net)
+
+(loop (sleep 7))
