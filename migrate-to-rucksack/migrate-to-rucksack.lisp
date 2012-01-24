@@ -30,3 +30,23 @@
 (ele:get-from-root 'counter)
 ;;=> 91035
 ;;   T
+
+
+
+;;;; load しましょう。
+(rucksack:with-transaction ()
+  (with-open-file (in "/home/ancient/job/actindi/tech/blog/tech-blog/migrate-to-rucksack/entry.lisp")
+   (loop for i in (read in nil)
+         while i
+         do (apply #'make-instance 'entry i))))
+(rucksack:with-transaction ()
+  (get-all-entries))
+
+(rucksack:with-transaction ()
+  (with-open-file (in "/home/ancient/job/actindi/tech/blog/tech-blog/migrate-to-rucksack/user.lisp")
+    (loop for i in (read in nil)
+          while i
+          do (apply #'make-instance 'user i))))
+(rucksack:with-transaction ()
+  (rucksack:rucksack-do-class (x 'user)
+    (print x)))

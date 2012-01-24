@@ -9,6 +9,4 @@
                :cl-who
                :hunchentoot
                :kmrcl
-               :elephant
-               :ele-clsql
-               :clsql-sqlite3))
+               :rucksack))

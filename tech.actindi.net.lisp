@@ -49,8 +49,7 @@
           "/stylesheets/" (merge-pathnames "stylesheets/" *default-directory*))
          ,(hunchentoot:create-folder-dispatcher-and-handler
            "/images/" (merge-pathnames "images/" *default-directory*))
-         dispatch-easy-handlers
-         default-dispatcher))
+         dispatch-easy-handlers))
 
 ;; メンバー一覧
 (defparameter *top-member*
@@ -166,7 +165,7 @@
 	})();"
           "//]]>"))))
       ((:div :id "footer")
-       ((:p :class "center") "Copyright &copy; 2010 アクトインディ All rights reserved.")))))
+       ((:p :class "center") "Copyright &copy; 2012 アクトインディ All rights reserved.")))))
 
 (defmacro define-actindi.net-template ((name path) (&rest args) contents)
   `(define-easy-handler (,name :uri ,path) ,args
@@ -187,7 +186,7 @@
        (with-defalut-template ,contents))))
 
 (defun authrizedp (user password)
-  (let ((x (ele:get-instance-by-value 'user 'id user)))
+  (let ((x (rucksack-find 'user 'id user)))
     (and x (equal password (user-password x)))))
 
 (defun pager (current-page total url)
@@ -276,7 +275,7 @@
 (defun show-entry ()
   (let* ((uri (hunchentoot:request-uri*))
          (path (subseq uri 0 (position #\? uri)))
-         (entry (ele:get-instance-by-value 'entry 'path path)))
+         (entry (rucksack-find 'entry 'path path)))
     (setf (content-type*) "text/html; charset=utf-8")
     (with-html-output-to-string (out nil :indent T :prologue nil)
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
@@ -387,7 +386,7 @@
     (:div ((:input :type "submit" :value "ログイン")))))))|#
 
 #|(define-actindi.net-template (auth "/auth") (user password)
-(let ((user (ele:get-instance-by-value 'user 'id user)))
+(let ((user (rucksack-find 'user 'id user)))
   (if (and user (equal password (user-password user)))
       (entry-new)
       (let ((*errors* "ログインできません。"))
@@ -443,7 +442,7 @@
     (with-defalut-template
       (ppcre:register-groups-bind (path)
           ("(/[0-9]+)/edit$" (hunchentoot:request-uri*))
-        (let ((entry (ele:get-instance-by-value 'entry 'path path)))
+        (let ((entry (rucksack-find 'entry 'path path)))
           (with-html-output (out)
             ((:div :class "content")
              (:h2 "投稿")
@@ -458,7 +457,7 @@
 
 (with-auth.define-actindi.net-template (entry-update "/entry/update")
   (path title author category body)
-  (let ((entry (ele:get-instance-by-value 'entry 'path path)))
+  (let ((entry (rucksack-find 'entry 'path path)))
     (setf (entry-title entry) title
           (entry-author entry) author
           (entry-category entry) category
@@ -470,23 +469,26 @@
 (defclass my-acceptor (hunchentoot:easy-acceptor)
   ((lock :initform (bt:make-lock))))
 
-(defmethod process-connection :around ((self my-acceptor) (socket t))
-  "Elephant はスレッド毎に DB の接続をオープンするが、それをハッシュテーブルに保持したままクローズしようとしない。
-Hunchentoot はリクエスト毎にスレッドを作って使い捨てている。
-ということで、リクエストが完了した時点で DB クローズ行うようにする。"
-  (unwind-protect
-       (call-next-method)
-    (bt:with-lock-held ((slot-value self 'lock))
-      (let* ((dbcons (db-clsql::controller-db-table elephant:*store-controller*))
-             (db (gethash (bt:current-thread) dbcons)))
-        (when (db-clsql::connection-ok-p-con db)
-          (clsql-sys:disconnect :database db))
-        (remhash (bt:current-thread) dbcons)))))
+(defmethod hunchentoot::acceptor-dispatch-request ((self my-acceptor) request)
+  (let (response
+        (handler-done t))
+    (rucksack:with-transaction ()
+      ;; hunchentoot のリダイレクトのハンドリング
+      (catch 'hunchentoot::handler-done
+        (setf response (call-next-method))
+        (setf handler-done nil)))
+    (if handler-done
+        (throw 'hunchentoot::handler-done nil)
+        response)))
 
 ;; start
 (defun start-tech.actindi.net (&key (port *http-port*))
-  ;; elephant のストアをオープンする。
-  (ele:open-store *store-spec*)
+  #+for-debug
+  (setf hunchentoot:*catch-errors-p* nil)
+  (unless rucksack:*rucksack*
+    (setf rucksack:*rucksack* (rucksack:open-rucksack
+                               (ensure-directories-exist
+                                (merge-pathnames "rucksack/" *default-directory*)))))
   ;;(LOAD (MERGE-PATHNAMES *DEFAULT-DIRECTORY* "blog.lisp"))
   (setq hunchentoot:*hunchentoot-default-external-format*
         (flex:make-external-format :utf-8 :eol-style :lf))
@@ -498,8 +500,7 @@ Hunchentoot はリクエスト毎にスレッドを作って使い捨ててい�
 ;; stop
 (defun stop-tech.actindi.net ()
   (stop *server*)
-  ;; elephant のストアをクローズする。
-  (ele:close-store))
+  (setf rucksack:*rucksack* (prog1 nil (rucksack:close-rucksack rucksack:*rucksack*))))
 
 
 (define-easy-handler (a :uri "/a") ()
