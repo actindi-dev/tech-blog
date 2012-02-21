@@ -341,6 +341,8 @@
                                         "/edit")
                      :class "edit" "編集")))
           ((:div :id "local_nav")
+           ;; news
+           (princ *block-news* out)
            ((:div :id "counter")
             (:dl
              (:dt "本頁の来客数")
