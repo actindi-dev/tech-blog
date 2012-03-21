@@ -82,7 +82,7 @@
           "お知らせ")
      #+nil
      (:p "子供とおでかけ頑張っています" ((:a :href "http://iko-yo.net/") "iko-yo.net"))
-     (:p ((:a :href "http://www.actindi.com/recruit/recruits") "エンジニア募集") "しています。"))))
+     (:p ((:a :href "http://www.actindi.com/recruit/programmer") "【求人】エンジニア募集") "しています。"))))
 
 (defparameter *twitter*
   "こんにちは!!、こんにちは!!")
