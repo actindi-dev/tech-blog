@@ -89,7 +89,7 @@
 
 ;; テンプレート
 (defmacro with-defalut-template (&body contents)
-  `(with-html-output-to-string (out nil :indent T :prologue nil)
+  `(with-html-output-to-string (out nil :indent T :prologue t)
      ((:html :xmlns "http://www.w3.org/1999/xhtml")
       (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
              (:title "アクトインディ技術部隊報告書")
@@ -277,7 +277,7 @@
          (path (subseq uri 0 (position #\? uri)))
          (entry (rucksack-find 'entry 'path path)))
     (setf (content-type*) "text/html; charset=utf-8")
-    (with-html-output-to-string (out nil :indent T :prologue nil)
+    (with-html-output-to-string (out nil :indent T :prologue t)
       ((:html :xmlns "http://www.w3.org/1999/xhtml")
        (:head ((:meta :http-equiv "Content-Type" :content "text/html; charset=utf-8"))
               (:title (format out
