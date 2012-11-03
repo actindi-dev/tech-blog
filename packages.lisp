@@ -1,7 +1,7 @@
 (defpackage :tech.actindi.net
   (:use :cl
         :hunchentoot
-        :cl-who
+        :info.read-eval-print.html
         :xyzzy-compat
         :FLEXI-STREAMS)
   (:export #:start-tech.actindi.net

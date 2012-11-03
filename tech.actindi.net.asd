@@ -6,7 +6,7 @@
                (:file "models")
                (:file "tech.actindi.net"))
   :depends-on (:xyzzy-compat
-               :cl-who
+               :info.read-eval-print.html
                :hunchentoot
                :kmrcl
                :rucksack))
