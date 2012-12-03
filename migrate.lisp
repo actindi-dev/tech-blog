@@ -51,7 +51,8 @@
                                machida  machida1234
                                masuda   masuda1234
                                chiba    chiba1234
-                               tahara   tahara1234))
+                               tahara   tahara1234
+                               aoki     aoki1234))
         by #'cddr
         do (make-instance 'user :id u :password p)))
 
@@ -64,3 +65,13 @@
   (TECH.ACTINDI.NET:START-TECH.ACTINDI.NET)
   (LOAD (MERGE-PATHNAMES "migrate" *SITE-FILES-DIRECTORY*))
   (LOAD (MERGE-PATHNAMES "blog" *SITE-FILES-DIRECTORY*)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; 青木さん
+(rucksack:with-transaction ()
+  (make-instance 'tech.actindi.net::user :id "aoki" :password "aoki1234"))
+;;⇒ #<TECH.ACTINDI.NET::USER aoki {101F1D2FF3}>
+;;   T

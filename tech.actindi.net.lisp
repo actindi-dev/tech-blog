@@ -62,6 +62,7 @@
               "アクトインディ技師部隊員名簿")
           (:ul
            (:li (:a :href "/uemura" "uemura"))
+           (:li (:a :href "/aoki" "aoki"))
            (:li (:a :href "/tahara" "tahara")))
      (:p :class "title"
          "アクトインディ技師部元隊員")
@@ -255,7 +256,7 @@
 
 
 (mapc #'make-member-page
-      '("uemura" "komagata" "machida" "tahara" "masuda" "chiba"))
+      '("uemura" "aoki" "komagata" "machida" "tahara" "masuda" "chiba"))
 
 (defvar *show-entry-dispatcher*
   (hunchentoot:create-regex-dispatcher "/[0-9]+$" 'show-entry))
