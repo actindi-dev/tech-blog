@@ -75,3 +75,8 @@
   (make-instance 'tech.actindi.net::user :id "aoki" :password "aoki1234"))
 ;;⇒ #<TECH.ACTINDI.NET::USER aoki {101F1D2FF3}>
 ;;   T
+
+;;;; 安宅さん、川口さん
+(rucksack:with-transaction ()
+  (make-instance 'tech.actindi.net::user :id "ataka" :password "ataka1234")
+  (make-instance 'tech.actindi.net::user :id "kawaguchi" :password "kawaguchi1234"))
