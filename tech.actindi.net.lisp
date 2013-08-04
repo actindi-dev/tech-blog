@@ -383,7 +383,8 @@
     (setf rucksack:*rucksack* (rucksack:open-rucksack
                                (ensure-directories-exist
                                 (merge-pathnames "rucksack/" *default-directory*)))))
-  ;; *acceptor*
+  ;; Unpyo
+  (setf *invoke-debugger-p* nil)
   (setq *server* (make-server :app (make-instance 'tech-app) :port port))
   (run *server*))
 
