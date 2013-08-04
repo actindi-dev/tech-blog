@@ -7,6 +7,6 @@
                (:file "tech.actindi.net"))
   :depends-on (:xyzzy-compat
                :info.read-eval-print.html
-               :hunchentoot
+               :unpyo
                :kmrcl
                :rucksack))

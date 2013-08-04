@@ -1,8 +1,8 @@
 (defpackage :tech.actindi.net
   (:use :cl
-        :hunchentoot
+        :unpyo
         :info.read-eval-print.html
         :xyzzy-compat
-        :FLEXI-STREAMS)
+        :flexi-streams)
   (:export #:start-tech.actindi.net
            #:stop-tech.actindi.net))
