@@ -359,8 +359,14 @@
   ())
 
 (defmethod call :around ((tech-app tech-app))
-  (rucksack:with-transaction ()
-    (call-next-method)))
+  (let ((retry-count 0))
+   (with-simple-restart (retry "Retry")
+     (handler-bind ((rucksack:transaction-conflict (lambda (c)
+                                                     (format t "~&Restart for ~a." c)
+                                                     (when (< (incf retry-count) 5)
+                                                       (invoke-restart 'retry)))))
+       (rucksack:with-transaction ()
+         (call-next-method))))))
 
 #+deleteme
 (defmethod hunchentoot::acceptor-dispatch-request ((self my-acceptor) request)
@@ -383,6 +389,8 @@
     (setf rucksack:*rucksack* (rucksack:open-rucksack
                                (ensure-directories-exist
                                 (merge-pathnames "rucksack/" *default-directory*)))))
+  ;; html
+  (setf info.read-eval-print.html:*html-pprint* nil)
   ;; Unpyo
   (setf *invoke-debugger-p* nil)
   (setq *server* (make-server :app (make-instance 'tech-app) :port port))
