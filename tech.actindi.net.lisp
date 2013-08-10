@@ -365,8 +365,6 @@
 
 ;; start
 (defun start-tech.actindi.net (&key (port *http-port*))
-  #+for-debug
-  (setf hunchentoot:*catch-errors-p* nil)
   (unless rucksack:*rucksack*
     (setf rucksack:*rucksack* (rucksack:open-rucksack
                                (ensure-directories-exist
