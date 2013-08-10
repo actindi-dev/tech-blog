@@ -161,10 +161,6 @@
          (:div#footer
           (:p.center "Copyright " (raw "&copy;") " 2013 アクトインディ All rights reserved."))))))
 
-(defmacro define-actindi.net-template ((name path) (&rest args) contents)
-  `(define-easy-handler (,name :uri ,path) ,args
-     (with-defalut-template ,contents)))
-
 (defun loginp ()
   (multiple-value-bind (user password) (authorization)
     (authrizedp user password)))
@@ -240,7 +236,6 @@
                       (:a :href "" :title "" "このページの上へ戻る"))))))
        (pager page (count-entryes-by-author ,name)
               (concatenate 'string "/" ,name)))))
-
 
 (def-member-page "uemura")
 (def-member-page "aoki")
@@ -367,19 +362,6 @@
                                                        (invoke-restart 'retry)))))
        (rucksack:with-transaction ()
          (call-next-method))))))
-
-#+deleteme
-(defmethod hunchentoot::acceptor-dispatch-request ((self my-acceptor) request)
-  (let (response
-        (handler-done t))
-    (rucksack:with-transaction ()
-      ;; hunchentoot のリダイレクトのハンドリング
-      (catch 'hunchentoot::handler-done
-        (setf response (call-next-method))
-        (setf handler-done nil)))
-    (if handler-done
-        (throw 'hunchentoot::handler-done nil)
-        response)))
 
 ;; start
 (defun start-tech.actindi.net (&key (port *http-port*))
