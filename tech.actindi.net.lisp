@@ -54,8 +54,6 @@
       (:p :class "title"
         "アクトインディ技師部隊員名簿")
       (:ul
-          (:li (:a :href "/uemura" "uemura"))
-        (:li (:a :href "/aoki" "aoki"))
         (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/tahara" "tahara")))
@@ -65,7 +63,8 @@
           (:li (:a :href "/komagata" "komagata"))
         (:li (:a :href "/machida" "machida"))
         (:li (:a :href "/masuda" "masuda"))
-        (:li (:a :href "/chiba" "chiba")))
+        (:li (:a :href "/chiba" "chiba"))
+        (:li (:a :href "/aoki" "aoki")))
       (:p :class "to_actindi"
         (:a :href "http://www.actindi.com"
           "アクトインディへ"))
@@ -237,7 +236,6 @@
        (pager page (count-entryes-by-author ,name)
               (concatenate 'string "/" ,name)))))
 
-(def-member-page "uemura")
 (def-member-page "aoki")
 (def-member-page "ataka")
 (def-member-page "kawaguchi")
