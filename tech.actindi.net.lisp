@@ -248,7 +248,8 @@
 (def-member-page "chiba")
 
 
-(defaction /@id (:route-function (lambda (url)
+(defaction /@id (:route-function (lambda (url method)
+                                   (declare (ignore method))
                                    (ppcre:register-groups-bind (id) ("^/([0-9]+)$" url)
                                      (setf (param :id) id))))
   (let* ((uri (env "REQUEST_URI"))
@@ -372,7 +373,7 @@
   ;; html
   (setf info.read-eval-print.html:*html-pprint* nil)
   ;; Unpyo
-  (setf *invoke-debugger-p* nil)
+  (setf *invoke-debugger-p* t)
   (setq *server* (make-server :app (make-instance 'tech-app) :port port))
   (run *server*))
 
