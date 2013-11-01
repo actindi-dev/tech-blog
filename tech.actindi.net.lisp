@@ -373,7 +373,7 @@
   ;; html
   (setf info.read-eval-print.html:*html-pprint* nil)
   ;; Unpyo
-  (setf *invoke-debugger-p* t)
+  (setf *invoke-debugger-p* nil)
   (setq *server* (make-server :app (make-instance 'tech-app) :port port))
   (run *server*))
 
