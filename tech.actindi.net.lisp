@@ -56,6 +56,7 @@
       (:ul
         (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
+        (:li (:a :href "/nakanishi" "nakanishi"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
         "アクトインディ技師部元隊員")
@@ -239,6 +240,7 @@
 (def-member-page "aoki")
 (def-member-page "ataka")
 (def-member-page "kawaguchi")
+(def-member-page "nakanishi")
 (def-member-page "komagata")
 (def-member-page "machida")
 (def-member-page "tahara")
@@ -348,7 +350,7 @@
 
 (defvar *server*)
 
-(defclass tech-app (app-routes-mixin)
+(defclass tech-app (application)
   ())
 
 (defmethod call :around ((tech-app tech-app))
