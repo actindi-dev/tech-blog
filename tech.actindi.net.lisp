@@ -56,7 +56,9 @@
       (:ul
         (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
+        (:li (:a :href "/komatsu" "komatsu"))
         (:li (:a :href "/nakanishi" "nakanishi"))
+        (:li (:a :href "/oishi" "oishi"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
         "アクトインディ技師部元隊員")
@@ -239,13 +241,15 @@
 
 (def-member-page "aoki")
 (def-member-page "ataka")
-(def-member-page "kawaguchi")
-(def-member-page "nakanishi")
-(def-member-page "komagata")
-(def-member-page "machida")
-(def-member-page "tahara")
-(def-member-page "masuda")
 (def-member-page "chiba")
+(def-member-page "kawaguchi")
+(def-member-page "komagata")
+(def-member-page "komatsu")
+(def-member-page "machida")
+(def-member-page "masuda")
+(def-member-page "nakanishi")
+(def-member-page "oishi")
+(def-member-page "tahara")
 
 
 (defaction /@id (:route-function (lambda (url method)
