@@ -57,7 +57,6 @@
         (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
-        (:li (:a :href "/nakanishi" "nakanishi"))
         (:li (:a :href "/oishi" "oishi"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
@@ -67,7 +66,8 @@
         (:li (:a :href "/machida" "machida"))
         (:li (:a :href "/masuda" "masuda"))
         (:li (:a :href "/chiba" "chiba"))
-        (:li (:a :href "/aoki" "aoki")))
+        (:li (:a :href "/aoki" "aoki"))
+        (:li (:a :href "/nakanishi" "nakanishi")))
       (:p :class "to_actindi"
         (:a :href "http://www.actindi.com"
           "アクトインディへ"))
