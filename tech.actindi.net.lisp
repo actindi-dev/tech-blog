@@ -54,7 +54,6 @@
       (:p :class "title"
         "アクトインディ技師部隊員名簿")
       (:ul
-        (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
         (:li (:a :href "/oishi" "oishi"))
@@ -62,11 +61,12 @@
       (:p :class "title"
         "アクトインディ技師部元隊員")
       (:ul
-          (:li (:a :href "/komagata" "komagata"))
+        (:li (:a :href "/komagata" "komagata"))
         (:li (:a :href "/machida" "machida"))
         (:li (:a :href "/masuda" "masuda"))
         (:li (:a :href "/chiba" "chiba"))
         (:li (:a :href "/aoki" "aoki"))
+        (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/nakanishi" "nakanishi")))
       (:p :class "to_actindi"
         (:a :href "http://www.actindi.com"
