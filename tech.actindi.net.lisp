@@ -1,7 +1,7 @@
 (in-package :tech.actindi.net)
 
 (defvar *errors* nil)
-(defvar *entries-per-page* 10)
+(defparameter *entries-per-page* 10)
 
 (defun number-to-kanji (num)
   (let ((digit   #("零" "一" "二" "三" "四" "五" "六" "七" "八" "九"))
@@ -25,26 +25,25 @@
 ;; RSS
 (defaction /rss.xml ()
   (setf (content-type) "text/html; charset=utf-8")
-  (with-output-to-string (*html-output*)
-    (html
-      (raw "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-      (:rss
-       :version "2.0"
-       (:channel
-        (:title "アクトインディ技術部隊報告書")
-        (:link "http://tech.actindi.net")
-        (:description "アクトインディ技術部隊報告書")
-        (format-date *html-output* "<lastBuildDate>%a, %d %b %Y %H:%M:%S +0900</lastBuildDate>")
-        (:language "ja")
-        (loop for x in (get-all-entries)
-              do (html
-                   (:item
-                    (:title (entry-title x))
-                    (:link (format nil "http://tech.actindi.net~A" (entry-path x)))
-                    (:description
-                     (raw "<![CDATA[") (raw (entry-body x)) (raw "]]>"))
-                    (format-date *html-output* "<pubDate>%a, %d %b %Y %H:%M:%S +0900</pubDate>"
-                                 (entry-date x))))))))))
+  (html
+    (raw "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+    (:rss
+     :version "2.0"
+     (:channel
+      (:title "アクトインディ技術部隊報告書")
+      (:link "http://tech.actindi.net")
+      (:description "アクトインディ技術部隊報告書")
+      (format-date *html-output* "<lastBuildDate>%a, %d %b %Y %H:%M:%S +0900</lastBuildDate>")
+      (:language "ja")
+      (loop for x in (zrang :entries 0 nil :from-end t)
+            do (html
+                 (:item
+                  (:title (post-title x))
+                  (:link (format nil "http://tech.actindi.net~A" (post-path x)))
+                  (:description
+                   (raw "<![CDATA[") (raw (post-body x)) (raw "]]>"))
+                  (format-date *html-output* "<pubDate>%a, %d %b %Y %H:%M:%S +0900</pubDate>"
+                               (post-date x)))))))))
 
 ;; メンバー一覧
 (defun top-member ()
@@ -135,15 +134,15 @@
             (:div#counter
              (:dl
                  (:dt "本頁の来客数")
-               (:dd (format nil "~A名" (number-to-kanji (incf-counter))))))
+               (:dd (format nil "~A名" (number-to-kanji (inc :counter))))))
             (top-member)))
           ;; ads
           (:div#foo_ads
            (:div#categories
             (:h2.design "カテゴリー")
             (:ul
-                (loop for entry in (get-all-entries)
-                      do (html (:li (:a :href (entry-path entry) (entry-title entry))))))
+                (loop for post in (zrang :entries 0 nil :from-end t)
+                      do (html (:li (:a :href (post-path post) (post-title post))))))
             (:p.to_actindi (:a :href "http://www.actindi.com" "アクトインディ")))
            (:div.poster
             (:img :src "/images/poster_01.jpg" :alt "aaaa"))
@@ -165,7 +164,7 @@
 
 (defun loginp ()
   (multiple-value-bind (user password) (authorization)
-    (authrizedp user password)))
+    (and user password (authrizedp user password))))
 
 (defmacro with-authorization (&body body)
   `(if (loginp)
@@ -173,8 +172,7 @@
        (require-authorization)))
 
 (defun authrizedp (user password)
-  (let ((x (rucksack-find 'user 'id user)))
-    (and x (equal password (user-password x)))))
+  (equal password (@ (format nil "user:~a" user))))
 
 (defun pager (current-page total url)
   (html
@@ -190,54 +188,56 @@
 
 ;; トップページ
 (defaction /root (:path "/")
-  (let ((page (or (and @page (parse-integer @page :junk-allowed t)) 1)))
+  (let* ((page (or (and @page (parse-integer @page :junk-allowed t)) 1))
+         (start (* *entries-per-page* (1- page)))
+         (end (1- (+ start *entries-per-page*))))
     (with-defalut-template
-      (loop for x in (get-entries (* *entries-per-page* (1- page)) *entries-per-page*)
+      (loop for x in (zrang :entries start end :from-end t)
             do (html
                  (:div.content
                   (:h2
-                      (:a :href (entry-path x) (entry-title x)))
+                      (:a :href (post-path x) (post-title x)))
                   (:dl.date
                    (:dd (format-date *html-output* "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                     (entry-date x)))
+                                     (post-date x)))
                    (:dt "区分")
-                   (:dd (entry-category x))
+                   (:dd (post-category x))
                    (:dt "報告者: ")
-                   (:dd (entry-author x)))
-                  (:p (raw (entry-body x)))
+                   (:dd (post-author x)))
+                  (:p (raw (post-body x)))
                   (:p.to_top
-                   (:a :href (format nil "~A#disqus_thread" (entry-path x))
+                   (:a :href (format nil "~A#disqus_thread" (post-path x))
                      ">View Comments")
                    (raw "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                   (:a :href "" "このページの上へ戻る"))))))
-    (pager page (count-entryes) "/")))
+                   (:a :href "" "このページの上へ戻る")))))
+      (pager page (zcard :entries) "/"))))
 
 (defmacro def-member-page (name)
   `(defaction ,(intern (format nil "/~:@(~a~)" name)) ()
-     (let ((page (or (and @page (parse-integer @page :junk-allowed t)) 1)))
+     (let* ((page (or (and @page (parse-integer @page :junk-allowed t)) 1))
+            (start (* *entries-per-page* (1- page)))
+            (end (1- (+ start *entries-per-page*))))
        (with-defalut-template
-         (loop for x in (get-entries-by-author ,name
-                                               (* *entries-per-page* (1- page))
-                                               *entries-per-page*)
+         (loop for x in (zrang ,(format nil "author:~a" name) start end :from-end t)
                do (html
                     (:div.content
                      (:h2
-                         (:a :href (entry-path x) (entry-title x)))
+                         (:a :href (post-path x) (post-title x)))
                      (:dl.date
                       (:dd (format-date *html-output* "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                        (entry-date x)))
+                                        (post-date x)))
                       (:dt "区分")
-                      (:dd (entry-category x))
+                      (:dd (post-category x))
                       (:dt "報告者: ")
-                      (:dd (entry-author x)))
-                     (:p (raw (entry-body x)))
+                      (:dd (post-author x)))
+                     (:p (raw (post-body x)))
                      (:p.to_top
-                      (:a :href (format nil "~A#disqus_thread" (entry-path x))
+                      (:a :href (format nil "~A#disqus_thread" (post-path x))
                         ">View Comments")
                       (raw "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-                      (:a :href "" :title "" "このページの上へ戻る"))))))
-       (pager page (count-entryes-by-author ,name)
-              (concatenate 'string "/" ,name)))))
+                      (:a :href "" :title "" "このページの上へ戻る")))))
+         (pager page (zcard ,(format nil "author:~a" name))
+                (concatenate 'string "/" ,name))))))
 
 (def-member-page "aoki")
 (def-member-page "ataka")
@@ -257,22 +257,22 @@
                                    (ppcre:register-groups-bind (id) ("^/([0-9]+)$" url)
                                      (setf (param :id) id))))
   (let* ((uri (env "REQUEST_URI"))
-         (path (subseq uri 0 (position #\? uri)))
-         (entry (rucksack-find 'entry 'path path)))
+         (id (parse-integer @id))
+         (post (car (zrang-by-score :entries id id))))
     (with-defalut-template
       (html
         (:div.content
          (:h2
-             (:a :href (entry-path entry) (entry-title entry)))
+             (:a :href (post-path post) (post-title post)))
          (:dl :class "date"
            (:dd (format-date *html-output*
                              "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                             (entry-date entry)))
+                             (post-date post)))
            (:dt "区分")
-           (:dd (entry-category entry))
+           (:dd (post-category post))
            (:dt "報告者: ")
-           (:dd (entry-author entry)))
-         (:p (raw (entry-body entry)))
+           (:dd (post-author post)))
+         (:p (raw (post-body post)))
          (:p :class "to_top"
            (:a :href "/" "トップページに戻る"))
          (:div.comment
@@ -286,12 +286,12 @@
 (defun presentp (x)
   (and x (trim x) ""))
 
-(defun entry-form (action path title author category body)
+(defun entry-form (action id title author category body)
   (html
     (:form :method "POST" :action action
-      (when path
+      (when id
         (html
-          (:input :type "hidden" :name "path" :value path)))
+          (:input :type "hidden" :name "id" :value id)))
       (:div
           (:label :for "title") "題名" (:br)
         (:input :type "text" :name "title" :value title))
@@ -314,44 +314,45 @@
          (:h2 "投稿")
          (when *errors*
            (format nil "~a" *errors*))
-         (entry-form "/entry/create" @title nil @author @category @body))))))
+         (entry-form "/entry/create" nil @title @author @category @body))))))
 
 (defaction /entry/create ()
   (with-authorization
-    (make-instance 'entry
-                   :title @title
-                   :author @author
-                   :category @category
-                   :body @body)
+    (let* ((post (make-post :title @title
+                            :author @author
+                            :category @category
+                            :body @body))
+           (date (post-date post)))
+      (zadd :entries date post)
+      (zadd (format nil "author:~a" @author) date post))
     (redirect "/")))
-
 
 (defaction /@id/edit ()
   (with-authorization
     (with-defalut-template
-      (ppcre:register-groups-bind (path)
-          ("(/[0-9]+)/edit$" (request-uri))
-        (let ((entry (rucksack-find 'entry 'path path)))
-          (html
-            (:div.content
-             (:h2 "投稿")
-             (if *errors*
-                 (format nil "~a" *errors*))
-             (entry-form "/entry/update"
-                         path
-                         (entry-title entry)
-                         (entry-author entry)
-                         (entry-category entry)
-                         (entry-body entry)))))))))
+      (let* ((id (parse-integer @id))
+             (post (car (zrang-by-score :entries id id))))
+        (html
+          (:div.content
+           (:h2 "投稿")
+           (if *errors*
+               (format nil "~a" *errors*))
+           (entry-form "/entry/update"
+                       id
+                       (post-title post)
+                       (post-author post)
+                       (post-category post)
+                       (post-body post))))))))
 
 (defaction /entry/update ()
   (with-authorization
-    (let ((entry (rucksack-find 'entry 'path @path)))
-      (setf (entry-title entry) @title
-            (entry-author entry) @author
-            (entry-category entry) @category
-            (entry-body entry) @body)
-      (redirect @path))))
+    (let* ((id (parse-integer @id))
+           (post (car (zrang-by-score :entries id id))))
+      (setf (post-title post) @title
+            (post-author post) @author
+            (post-category post) @category
+            (post-body post) @body)
+      (redirect (format nil "/~a" id)))))
 
 (defvar *server*)
 
@@ -359,21 +360,13 @@
   ())
 
 (defmethod call :around ((tech-app tech-app))
-  (let ((retry-count 0))
-   (with-simple-restart (retry "Retry")
-     (handler-bind ((rucksack:transaction-conflict (lambda (c)
-                                                     (format t "~&Restart for ~a." c)
-                                                     (when (< (incf retry-count) 5)
-                                                       (invoke-restart 'retry)))))
-       (rucksack:with-transaction ()
-         (call-next-method))))))
+  (with-db ((merge-pathnames "lepis/" *default-directory*))
+    (call-next-method)))
 
 ;; start
 (defun start-tech.actindi.net (&key (port *http-port*))
-  (unless rucksack:*rucksack*
-    (setf rucksack:*rucksack* (rucksack:open-rucksack
-                               (ensure-directories-exist
-                                (merge-pathnames "rucksack/" *default-directory*)))))
+  (unless *db*
+    (setf *db* (open-db (merge-pathnames "lepis/" *default-directory*))))
   ;; html
   (setf info.read-eval-print.html:*html-pprint* nil)
   ;; Unpyo
@@ -384,4 +377,6 @@
 ;; stop
 (defun stop-tech.actindi.net ()
   (stop *server*)
-  (setf rucksack:*rucksack* (prog1 nil (rucksack:close-rucksack rucksack:*rucksack*))))
+  (when *db*
+    (close-db *db*)
+    (setf *db* nil)))

@@ -9,4 +9,4 @@
                :info.read-eval-print.html
                :unpyo
                :kmrcl
-               :rucksack))
+               :lepis))
