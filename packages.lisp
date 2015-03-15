@@ -3,6 +3,7 @@
         :unpyo
         :info.read-eval-print.html
         :xyzzy-compat
-        :flexi-streams)
+        :flexi-streams
+        :lepis)
   (:export #:start-tech.actindi.net
            #:stop-tech.actindi.net))

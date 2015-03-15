@@ -3,6 +3,17 @@
 (defun compute-path ()
   (format nil "/~d" (get-universal-time)))
 
+(defstruct post
+  (path (compute-path))
+  title
+  body
+  (author "unknown")
+  (date (get-universal-time))
+  category)
+
+
+
+
 (rucksack:with-transaction ()
   (defclass entry ()
     ((path :initarg :path :initform (compute-path) :accessor entry-path
@@ -27,67 +38,12 @@
                 (entry-body entry)))))
 
 
-(defun get-all-entries ()
-  (let (result)
-    (rucksack:rucksack-do-slot (x 'entry 'date :order :ascending)
-      (push x result))
-    result))
-;;(rucksack:with-transaction () (get-all-entries))
-
-(defun get-entries (offset max)
-  (let (result)
-    (rucksack:rucksack-do-slot (x 'entry 'date :order :descending)
-      (if (zerop offset)
-          (progn
-            (push x result)
-            (when (zerop (decf max))
-              (return-from get-entries
-                (reverse result))))
-          (decf offset)))
-    (reverse result)))
-;;(rucksack:with-transaction () (get-entries 0 3))
-
-(defun get-entries-by-author (author offset max)
-  (let (result)
-    (rucksack:rucksack-do-slot (x 'entry 'date :order :descending)
-      (when (string= author (entry-author x))
-        (if (zerop offset)
-            (progn
-              (push x result)
-              (when (zerop (decf max))
-                (return-from get-entries-by-author
-                  (reverse result))))
-            (decf offset))))
-    (reverse result)))
-;;(rucksack:with-transaction () (get-entries-by-author "chiba" 0 3))
-
-(defun count-entryes ()
-  (let ((total 0))
-    (rucksack:rucksack-do-class (x 'entry :id-only t)
-      (declare (ignore x))
-      (incf total))
-    total))
-
-(defun count-entryes-by-author (author)
-  (let ((total 0))
-    (rucksack:rucksack-do-slot (x 'entry 'author :equal author)
-      (declare (ignore x))
-      (incf total))
-    total))
-;;(rs:with-transaction () (count-entryes-by-author "chiba"))
-
 (rucksack:with-transaction ()
   (defclass counter ()
     ((value :initform 91035 :accessor counter-value))
     (:index t)
     (:metaclass rucksack:persistent-class)))
 
-(defun incf-counter ()
-  (rucksack:rucksack-do-class (x 'counter)
-    (return-from incf-counter
-      (incf (counter-value x))))
-  (incf (counter-value (make-instance 'counter))))
-;; (rucksack:with-transaction () (incf-counter))
 
 (rucksack:with-transaction ()
   (defclass user ()
@@ -99,9 +55,3 @@
 (defmethod print-object ((user user) stream)
   (print-unreadable-object (user stream :type t :identity t)
     (format stream "~a" (user-id user))))
-
-
-(defun rucksack-find (class slot value)
-  (rucksack:rucksack-do-slot (x class slot :equal value)
-    (return-from rucksack-find x))
-  nil)
