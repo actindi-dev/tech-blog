@@ -367,10 +367,6 @@
 (defun start-tech.actindi.net (&key (port *http-port*))
   (unless *db*
     (setf *db* (open-db (merge-pathnames "lepis/" *default-directory*))))
-  (unless rucksack:*rucksack*
-    (setf rucksack:*rucksack* (rucksack:open-rucksack
-                               (ensure-directories-exist
-                                (merge-pathnames "rucksack/" *default-directory*)))))
   ;; html
   (setf info.read-eval-print.html:*html-pprint* nil)
   ;; Unpyo
@@ -383,5 +379,4 @@
   (stop *server*)
   (when *db*
     (close-db *db*)
-    (setf *db* nil))
-  (setf rucksack:*rucksack* (prog1 nil (rucksack:close-rucksack rucksack:*rucksack*))))
+    (setf *db* nil)))
