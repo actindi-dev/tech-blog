@@ -53,6 +53,8 @@
       (:p :class "title"
         "アクトインディ技師部隊員名簿")
       (:ul
+        (:li (:a :href "/akiyama" "akiyama"))
+        (:li (:a :href "/chiba" "chiba"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
         (:li (:a :href "/oishi" "oishi"))
@@ -63,7 +65,6 @@
         (:li (:a :href "/komagata" "komagata"))
         (:li (:a :href "/machida" "machida"))
         (:li (:a :href "/masuda" "masuda"))
-        (:li (:a :href "/chiba" "chiba"))
         (:li (:a :href "/aoki" "aoki"))
         (:li (:a :href "/ataka" "ataka"))
         (:li (:a :href "/nakanishi" "nakanishi")))
@@ -241,6 +242,7 @@
          (pager page (zcard ,(format nil "author:~a" name))
                 (concatenate 'string "/" ,name))))))
 
+(def-member-page "akiyama")
 (def-member-page "aoki")
 (def-member-page "ataka")
 (def-member-page "chiba")
@@ -312,7 +314,7 @@
 
 (defaction /entry/new ()
   (with-authorization
-    (with-defalut-template
+    (with-defalut-template ()
       (html
         (:div.content
          (:h2 "投稿")
@@ -333,7 +335,7 @@
 
 (defaction /@id/edit ()
   (with-authorization
-    (with-defalut-template
+    (with-defalut-template ()
       (let* ((id (parse-integer @id))
              (post (car (zrang-by-score :entries id id))))
         (html
