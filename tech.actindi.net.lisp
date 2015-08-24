@@ -87,13 +87,13 @@
   "こんにちは!!、こんにちは!!")
 
 ;; テンプレート
-(defmacro with-defalut-template (&body contents)
+(defmacro with-defalut-template ((&key (title "アクトインディ技術部隊報告書")) &body contents)
   `(html
      (raw "<!DOCTYPE html>")
      (:html
        :lang "ja"
        (:head (:meta :charset "UTF-8")
-         (:title "アクトインディ技術部隊報告書")
+         (:title ,title)
          (:link :href "/stylesheets/reset.css" :rel "stylesheet" :type "text/css")
          (:link :href "/stylesheets/basic.css" :rel "stylesheet" :type "text/css")
          (:link :href "/rss.xml" :rel "alternate" :type "application/rss+xml" :title "Actindi Tech blog")
@@ -160,7 +160,7 @@
               })();
          //]]>"))))                     ;"
          (:div#footer
-          (:p.center "Copyright " (raw "&copy;") " 2013 アクトインディ All rights reserved."))))))
+          (:p.center "Copyright " (raw "&copy;") " 2009-2015 アクトインディ All rights reserved."))))))
 
 (defun loginp ()
   (multiple-value-bind (user password) (authorization)
@@ -191,7 +191,7 @@
   (let* ((page (or (and @page (parse-integer @page :junk-allowed t)) 1))
          (start (* *entries-per-page* (1- page)))
          (end (1- (+ start *entries-per-page*))))
-    (with-defalut-template
+    (with-defalut-template ()
       (loop for x in (zrang :entries start end :from-end t)
             do (html
                  (:div.content
@@ -217,7 +217,9 @@
      (let* ((page (or (and @page (parse-integer @page :junk-allowed t)) 1))
             (start (* *entries-per-page* (1- page)))
             (end (1- (+ start *entries-per-page*))))
-       (with-defalut-template
+       (with-defalut-template (:title (concatenate 'string
+                                                   (string-downcase ',name)
+                                                   "の記事 — アクトインディ技術部隊報告書"))
          (loop for x in (zrang ,(format nil "author:~a" name) start end :from-end t)
                do (html
                     (:div.content
@@ -259,7 +261,9 @@
   (let* ((uri (env "REQUEST_URI"))
          (id (parse-integer @id))
          (post (car (zrang-by-score :entries id id))))
-    (with-defalut-template
+    (with-defalut-template (:title (concatenate 'string
+                                                (post-title post)
+                                                " — アクトインディ技術部隊報告書"))
       (html
         (:div.content
          (:h2
