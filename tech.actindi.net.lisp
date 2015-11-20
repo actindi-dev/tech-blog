@@ -57,6 +57,7 @@
         (:li (:a :href "/chiba" "chiba"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
+        (:li (:a :href "/namikata" "namikata"))
         (:li (:a :href "/oishi" "oishi"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
@@ -249,6 +250,7 @@
 (def-member-page "kawaguchi")
 (def-member-page "komagata")
 (def-member-page "komatsu")
+(def-member-page "namikata")
 (def-member-page "machida")
 (def-member-page "masuda")
 (def-member-page "nakanishi")
