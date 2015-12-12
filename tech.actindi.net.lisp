@@ -55,20 +55,20 @@
       (:ul
         (:li (:a :href "/akiyama" "akiyama"))
         (:li (:a :href "/chiba" "chiba"))
+        (:li (:a :href "/honda" "honda"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
-        (:li (:a :href "/namikata" "namikata"))
-        (:li (:a :href "/oishi" "oishi"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
         "アクトインディ技師部元隊員")
       (:ul
-        (:li (:a :href "/komagata" "komagata"))
-        (:li (:a :href "/machida" "machida"))
-        (:li (:a :href "/masuda" "masuda"))
         (:li (:a :href "/aoki" "aoki"))
         (:li (:a :href "/ataka" "ataka"))
-        (:li (:a :href "/nakanishi" "nakanishi")))
+        (:li (:a :href "/komagata" "komagata"))
+        (:li (:a :href "/nakanishi" "nakanishi"))
+        (:li (:a :href "/machida" "machida"))
+        (:li (:a :href "/masuda" "masuda"))
+        (:li (:a :href "/oishi" "oishi")))
       (:p :class "to_actindi"
         (:a :href "http://www.actindi.com"
           "アクトインディへ"))
@@ -247,10 +247,10 @@
 (def-member-page "aoki")
 (def-member-page "ataka")
 (def-member-page "chiba")
+(def-member-page "honda")
 (def-member-page "kawaguchi")
 (def-member-page "komagata")
 (def-member-page "komatsu")
-(def-member-page "namikata")
 (def-member-page "machida")
 (def-member-page "masuda")
 (def-member-page "nakanishi")
