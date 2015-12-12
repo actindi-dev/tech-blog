@@ -254,6 +254,7 @@
 (def-member-page "machida")
 (def-member-page "masuda")
 (def-member-page "nakanishi")
+(def-member-page "namikata")
 (def-member-page "oishi")
 (def-member-page "tahara")
 
