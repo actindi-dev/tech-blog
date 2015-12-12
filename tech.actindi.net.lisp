@@ -33,7 +33,7 @@
       (:title "アクトインディ技術部隊報告書")
       (:link "http://tech.actindi.net")
       (:description "アクトインディ技術部隊報告書")
-      (format-date *html-output* "<lastBuildDate>%a, %d %b %Y %H:%M:%S +0900</lastBuildDate>")
+      (raw (format-date-string "<lastBuildDate>%a, %d %b %Y %H:%M:%S +0900</lastBuildDate>"))
       (:language "ja")
       (loop for x in (zrang :entries 0 nil :from-end t)
             do (html
@@ -42,8 +42,9 @@
                   (:link (format nil "http://tech.actindi.net~A" (post-path x)))
                   (:description
                    (raw "<![CDATA[") (raw (post-body x)) (raw "]]>"))
-                  (format-date *html-output* "<pubDate>%a, %d %b %Y %H:%M:%S +0900</pubDate>"
-                               (post-date x)))))))))
+                  (raw
+                   (format-date-string "<pubDate>%a, %d %b %Y %H:%M:%S +0900</pubDate>"
+                                       (post-date x))))))))))
 
 ;; メンバー一覧
 (defun top-member ()
@@ -200,8 +201,8 @@
                   (:h2
                       (:a :href (post-path x) (post-title x)))
                   (:dl.date
-                   (:dd (format-date *html-output* "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                     (post-date x)))
+                   (:dd (format-date-string "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
+                                            (post-date x)))
                    (:dt "区分")
                    (:dd (post-category x))
                    (:dt "報告者: ")
@@ -228,8 +229,8 @@
                      (:h2
                          (:a :href (post-path x) (post-title x)))
                      (:dl.date
-                      (:dd (format-date *html-output* "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                                        (post-date x)))
+                      (:dd (format-date-string "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
+                                               (post-date x)))
                       (:dt "区分")
                       (:dd (post-category x))
                       (:dt "報告者: ")
@@ -273,9 +274,8 @@
          (:h2
              (:a :href (post-path post) (post-title post)))
          (:dl :class "date"
-           (:dd (format-date *html-output*
-                             "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
-                             (post-date post)))
+           (:dd (format-date-string "%g%#e年%#m月%#d日(%v) %H時%M分%S秒"
+                                    (post-date post)))
            (:dt "区分")
            (:dd (post-category post))
            (:dt "報告者: ")
@@ -375,8 +375,6 @@
 (defun start-tech.actindi.net (&key (port *http-port*))
   (unless *db*
     (setf *db* (open-db (merge-pathnames "lepis/" *default-directory*))))
-  ;; html
-  (setf info.read-eval-print.html:*html-pprint* nil)
   ;; Unpyo
   (setf *invoke-debugger-p* nil)
   (setq *server* (make-server :app (make-instance 'tech-app) :port port))
