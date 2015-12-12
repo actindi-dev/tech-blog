@@ -10,7 +10,7 @@
 
 USER=deployer
 export HOME=/home/$USER
-START_LISP=$HOME/lisp/tech-blog/start.lisp
+START_LISP=$HOME/quicklisp/local-projects/tech-blog/start.lisp
 export LANG=ja_JP.UTF-8
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
