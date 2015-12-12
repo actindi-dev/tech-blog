@@ -3,6 +3,8 @@
 (defvar *errors* nil)
 (defparameter *entries-per-page* 10)
 
+(defvar *session-user* "user" "(id-of user) を設定するセッションキー")
+
 (defun number-to-kanji (num)
   (let ((digit   #("零" "一" "二" "三" "四" "五" "六" "七" "八" "九"))
         (subunit #("" "十" "百" "千"))
@@ -90,7 +92,7 @@
   "こんにちは!!、こんにちは!!")
 
 ;; テンプレート
-(defmacro with-defalut-template ((&key (title "アクトインディ技術部隊報告書")) &body contents)
+(defmacro with-default-template ((&key (title "アクトインディ技術部隊報告書")) &body contents)
   `(html
      (raw "<!DOCTYPE html>")
      (:html
@@ -166,16 +168,12 @@
           (:p.center "Copyright " (raw "&copy;") " 2009-2015 アクトインディ All rights reserved."))))))
 
 (defun loginp ()
-  (multiple-value-bind (user password) (authorization)
-    (and user password (authrizedp user password))))
+  (unpyo:session *session-user*))
 
 (defmacro with-authorization (&body body)
   `(if (loginp)
        (progn ,@body)
-       (require-authorization)))
-
-(defun authrizedp (user password)
-  (equal password (@ (format nil "user:~a" user))))
+       (redirect "/login")))
 
 (defun pager (current-page total url)
   (html
@@ -194,7 +192,7 @@
   (let* ((page (or (and @page (parse-integer @page :junk-allowed t)) 1))
          (start (* *entries-per-page* (1- page)))
          (end (1- (+ start *entries-per-page*))))
-    (with-defalut-template ()
+    (with-default-template ()
       (loop for x in (zrang :entries start end :from-end t)
             do (html
                  (:div.content
@@ -220,7 +218,7 @@
      (let* ((page (or (and @page (parse-integer @page :junk-allowed t)) 1))
             (start (* *entries-per-page* (1- page)))
             (end (1- (+ start *entries-per-page*))))
-       (with-defalut-template (:title (concatenate 'string
+       (with-default-template (:title (concatenate 'string
                                                    (string-downcase ',name)
                                                    "の記事 — アクトインディ技術部隊報告書"))
          (loop for x in (zrang ,(format nil "author:~a" name) start end :from-end t)
@@ -266,7 +264,7 @@
   (let* ((uri (env "REQUEST_URI"))
          (id (parse-integer @id))
          (post (car (zrang-by-score :entries id id))))
-    (with-defalut-template (:title (concatenate 'string
+    (with-default-template (:title (concatenate 'string
                                                 (post-title post)
                                                 " — アクトインディ技術部隊報告書"))
       (html
@@ -316,7 +314,7 @@
 
 (defaction /entry/new ()
   (with-authorization
-    (with-defalut-template ()
+    (with-default-template ()
       (html
         (:div.content
          (:h2 "投稿")
@@ -337,7 +335,7 @@
 
 (defaction /@id/edit ()
   (with-authorization
-    (with-defalut-template ()
+    (with-default-template ()
       (let* ((id (parse-integer @id))
              (post (car (zrang-by-score :entries id id))))
         (html
@@ -362,6 +360,60 @@
             (post-body post) @body)
       (redirect (format nil "/~a" id)))))
 
+
+(defparameter *oauth-secret-file* (merge-pathnames "google-oauth.lisp" *default-directory*))
+(defvar *oauth-client-id* nil)
+(defvar *oauth-client-secret* nil)
+(defvar *oauth-callback-url* nil)
+(defun load-google-oauth ()
+  (with-open-file (in *oauth-secret-file*)
+    (let ((x (read in)))
+      (setf *oauth-client-id* (getf x :client-id)
+            *oauth-client-secret* (getf x :client-secret)
+            *oauth-callback-url* (getf x :callback-url)))))
+
+(defaction /login ()
+  (with-default-template (:title "ログイン")
+    (:div :style "margin-left: 20px; font-size: 18px;"
+     (when @noauth
+       (html (:p "ログイン権限がありません。")))
+     (:a :href
+       (format nil "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=~a&redirect_uri=~a&scope=https://www.googleapis.com/auth/userinfo.email"
+               *oauth-client-id* *oauth-callback-url*)
+       "Google アカウントでログイン"))))
+
+(defun auth-check (email)
+  (ppcre:scan "@actindi.net\\z" email))
+
+(defaction /oauth2callback ()
+  (handler-case
+      (if @code
+          (let* ((token (oauth2:request-token
+                         "https://www.googleapis.com/oauth2/v3/token"
+                         @code
+                         :method :post
+                         :redirect-uri *oauth-callback-url*
+                         :other `(("client_id" . ,*oauth-client-id*)
+                                  ("client_secret" . ,*oauth-client-secret*))))
+                 (userinfo (with-input-from-string
+                               (stream
+                                (map 'string 'code-char
+                                  (oauth2:request-resource
+                                   "https://www.googleapis.com/oauth2/v2/userinfo"
+                                   token)))
+                             (json:decode-json stream)))
+                 (email (cdr (assoc :email userinfo))))
+            (if (not (auth-check email))
+                (redirect "/login?noauth=1")
+                (progn
+                  (setf (unpyo:session *session-user*) email)
+                  (redirect "/"))))
+          (redirect "/login"))
+    (oauth2::request-token-error (e)
+      (print e)
+      (redirect "/login"))))
+
+
 (defvar *server*)
 
 (defclass tech-app (application)
@@ -373,6 +425,7 @@
 
 ;; start
 (defun start-tech.actindi.net (&key (port *http-port*))
+  (load-google-oauth)
   (unless *db*
     (setf *db* (open-db (merge-pathnames "lepis/" *default-directory*))))
   ;; Unpyo

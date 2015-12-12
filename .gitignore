@@ -1,6 +1,7 @@
 *.fasl
 *~
+/google-oauth.lisp
+/lepis
+/rucksack
 /scratch.lisp
 /tech-blog
-/rucksack
-/lepis
