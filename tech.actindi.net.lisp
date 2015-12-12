@@ -61,6 +61,7 @@
         (:li (:a :href "/honda" "honda"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
+        (:li (:a :href "/namikata" "namikata"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
         "アクトインディ技師部元隊員")
