@@ -370,7 +370,8 @@
     (let ((x (read in)))
       (setf *oauth-client-id* (getf x :client-id)
             *oauth-client-secret* (getf x :client-secret)
-            *oauth-callback-url* (getf x :callback-url)))))
+            *oauth-callback-url* (getf x :callback-url)
+            unpyo::*session-secret* (getf x :unpyo-session-secret)))))
 
 (defaction /login ()
   (with-default-template (:title "ログイン")
