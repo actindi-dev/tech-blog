@@ -58,6 +58,7 @@
         (:li (:a :href "/honda" "honda"))
         (:li (:a :href "/kawaguchi" "kawaguchi"))
         (:li (:a :href "/komatsu" "komatsu"))
+        (:li (:a :href "/namikata" "namikata"))
         (:li (:a :href "/tahara" "tahara")))
       (:p :class "title"
         "アクトインディ技師部元隊員")
@@ -254,6 +255,7 @@
 (def-member-page "machida")
 (def-member-page "masuda")
 (def-member-page "nakanishi")
+(def-member-page "namikata")
 (def-member-page "oishi")
 (def-member-page "tahara")
 
