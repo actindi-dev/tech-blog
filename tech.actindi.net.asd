@@ -9,4 +9,5 @@
                :info.read-eval-print.html
                :unpyo
                :kmrcl
-               :lepis))
+               :lepis
+               :oauth2))
